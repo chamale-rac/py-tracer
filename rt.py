@@ -2,8 +2,12 @@ import pygame
 import math
 import numpy as np
 
+import materials
+import figures
+import lights
 
-class Raytracer:
+
+class Raytracer(object):
     '''
     Raytracer class
 
@@ -16,18 +20,17 @@ class Raytracer:
     def __init__(self, screen: pygame.display) -> None:
         self.screen = screen
         self.width, self.height = screen.get_size()
+
         self.scene = []
+        self.lights = []
+
         self.camera = (0, 0, 0)
 
-        self.viewport_x = 0
-        self.viewport_y = 0
-        self.viewport_width = self.width
-        self.viewport_height = self.height
-
+        self.viewport(0, 0, self.width, self.height)
         self.projection(60, 0.1)
 
-        self.clear_color = (0, 0, 0)
-        self.current_color = (255, 255, 255)
+        self.set_clear_color(0.25, 0.25, 0.25)
+        self.set_current_color(1, 1, 1)
 
     def viewport(self, x: int, y: int, width: int, height: int) -> None:
         self.viewport_x = x
@@ -52,17 +55,20 @@ class Raytracer:
 
     def point(self, x: int, y: int, color: tuple[float, float, float] = None) -> None:
         # invert y
-        y = self.height - y - 1
+        y = self.height - y
         if 0 <= x < self.width and 0 <= y < self.height:
             if color:
                 self.set_current_color(*color)
             self.screen.set_at((x, y), self.current_color)
 
     def cast_ray(self, origin: tuple[float, float, float], direction: tuple[float, float, float]) -> bool:
+        intercept = None
+        hit = None
         for obj in self.scene:
-            if obj.ray_intersect(origin, direction):
-                return True
-        return False
+            intercept = obj.ray_intersect(origin, direction)
+            if intercept:
+                hit = intercept
+        return hit
 
     def render(self) -> None:
         for x in range(self.viewport_x, self.viewport_x + self.viewport_width + 1):
@@ -82,5 +88,52 @@ class Raytracer:
                         [position_x, position_y, -self.near_plane])
                     direction /= np.linalg.norm(direction)
 
-                    if self.cast_ray(self.camera, direction):
-                        self.point(x, y)
+                    intercept = self.cast_ray(self.camera, direction)
+
+                    if intercept:
+                        material = intercept.obj.material
+
+                        color_point = list(material.diffuse)
+
+                        ambient_light = [0, 0, 0]
+                        directional_light = [0, 0, 0]
+
+                        for light in self.lights:
+                            if light.light_type == "ambient":
+                                ambient_light[0] += light.intensity * \
+                                    light.color[0]
+                                ambient_light[1] += light.intensity * \
+                                    light.color[1]
+                                ambient_light[2] += light.intensity * \
+                                    light.color[2]
+
+                            if light.light_type == "directional":
+                                light_direction = np.array(
+                                    light.direction) * -1
+                                light_direction = light_direction / \
+                                    np.linalg.norm(light_direction)
+
+                                intensity = np.dot(
+                                    intercept.normal, light_direction)
+
+                                intensity = max(0, min(1, intensity))
+
+                                directional_light[0] += intensity * \
+                                    light.intensity * light.color[0]
+                                directional_light[1] += intensity * \
+                                    light.intensity * light.color[1]
+                                directional_light[2] += intensity * \
+                                    light.intensity * light.color[2]
+
+                        color_point[0] *= ambient_light[0] + \
+                            directional_light[0]
+                        color_point[1] *= ambient_light[1] + \
+                            directional_light[1]
+                        color_point[2] *= ambient_light[2] + \
+                            directional_light[2]
+
+                        color_point[0] = min(1, color_point[0])
+                        color_point[1] = min(1, color_point[1])
+                        color_point[2] = min(1, color_point[2])
+
+                        self.point(x, y, color_point)
