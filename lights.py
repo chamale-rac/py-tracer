@@ -1,3 +1,15 @@
+from figures import Intercept
+import numpy as np
+
+
+def calculate_reflect_vector(vector: tuple[float, float, float], normal: tuple[float, float, float]) -> tuple[float, float, float]:
+    reflect = 2 * np.dot(vector, normal)
+    reflect = np.multiply(reflect, normal)
+    reflect = np.subtract(reflect, vector)
+    reflect = reflect / np.linalg.norm(reflect)
+    return reflect
+
+
 class Light:
     '''
     Light Class
@@ -13,6 +25,15 @@ class Light:
         self.intensity = intensity
         self.color = color
         self.light_type = light_type
+
+    def get_light_color(self) -> tuple[float, float, float]:
+        return tuple([self.intensity * c for c in self.color])
+
+    def get_diffuse_color(self, intercept: Intercept) -> tuple[float, float, float]:
+        return None
+
+    def get_specular_color(self, intercept: Intercept, view_position) -> tuple[float, float, float]:
+        return None
 
 
 class AmbientLight(Light):
@@ -44,7 +65,33 @@ class DirectionalLight(Light):
 
     def __init__(self, intensity: float = 1, color: tuple[float, float, float] = (1, 1, 1), direction: tuple[float, float, float] = (0, -1, 0)) -> None:
         super().__init__(intensity, color, "directional")
-        self.direction = direction
+        self.direction = direction / np.linalg.norm(direction)
+
+    def get_diffuse_color(self, intercept: Intercept) -> tuple[float, float, float]:
+        direction = [i*-1 for i in self.direction]
+
+        intensity = np.dot(intercept.normal, direction) * self.intensity
+        intensity = max(0, min(1, intensity))
+
+        diffuse_color = tuple([intensity * c for c in self.color])
+
+        return diffuse_color
+
+    def get_specular_color(self, intercept: Intercept, view_position: tuple[float, float, float]) -> tuple[float, float, float]:
+        direction = [i*-1 for i in self.direction]
+
+        reflect_vector = calculate_reflect_vector(direction, intercept.normal)
+
+        view_direction = np.subtract(view_position, intercept.point)
+        view_direction = view_direction / np.linalg.norm(view_direction)
+
+        specular_intensity = max(
+            0, np.dot(view_direction, reflect_vector)) ** intercept.obj.material.specular
+        specular_intensity *= self.intensity
+
+        specular_color = tuple([specular_intensity * c for c in self.color])
+
+        return specular_color
 
 # TODO: Add PointLight class
 # TODO: Add SpotLight class

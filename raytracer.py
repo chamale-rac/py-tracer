@@ -15,12 +15,22 @@ screen.set_alpha(None)
 
 raytracer = Raytracer(screen)
 
-brick = Material(diffuse=(1, 0.4, 0.4))
+brick = Material(diffuse=(1, 0.4, 0.4), specular=8)
+grass = Material(diffuse=(0.4, 1, 0.4), specular=32)
+water = Material(diffuse=(0.4, 0.4, 1), specular=256)
 
-raytracer.scene.append(Sphere(position=(0, 0, -5), radius=1, material=brick))
+raytracer.scene.append(
+    Sphere(position=(-2, 0, -5), radius=0.5, material=brick))
+
+raytracer.scene.append(
+    Sphere(position=(0, 0, -5), radius=0.5, material=grass))
+
+raytracer.scene.append(
+    Sphere(position=(2, 0, -5), radius=0.5, material=water))
 
 raytracer.lights.append(AmbientLight(intensity=0.1))
-raytracer.lights.append(DirectionalLight(direction=(0, -1, -1), intensity=0.7))
+raytracer.lights.append(DirectionalLight(
+    direction=(-1, -1, -1), intensity=0.7))
 
 is_running = True
 

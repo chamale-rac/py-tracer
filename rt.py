@@ -24,7 +24,7 @@ class Raytracer(object):
         self.scene = []
         self.lights = []
 
-        self.camera = (0, 0, 0)
+        self.camera_position = (0, 0, 0)
 
         self.viewport(0, 0, self.width, self.height)
         self.projection(60, 0.1)
@@ -88,52 +88,52 @@ class Raytracer(object):
                         [position_x, position_y, -self.near_plane])
                     direction /= np.linalg.norm(direction)
 
-                    intercept = self.cast_ray(self.camera, direction)
+                    intercept = self.cast_ray(self.camera_position, direction)
 
                     if intercept:
-                        material = intercept.obj.material
+                        surface_color = intercept.obj.material.diffuse
 
-                        color_point = list(material.diffuse)
-
-                        ambient_light = [0, 0, 0]
-                        directional_light = [0, 0, 0]
+                        ambient_color = [0, 0, 0]
+                        diffuse_color = [0, 0, 0]
+                        specular_color = [0, 0, 0]
 
                         for light in self.lights:
                             if light.light_type == "ambient":
-                                ambient_light[0] += light.intensity * \
-                                    light.color[0]
-                                ambient_light[1] += light.intensity * \
-                                    light.color[1]
-                                ambient_light[2] += light.intensity * \
-                                    light.color[2]
+                                r, g, b = light.get_light_color()
+                                ambient_color = [
+                                    ambient_color[0] + r,
+                                    ambient_color[1] + g,
+                                    ambient_color[2] + b
+                                ]
+                            else:
+                                r, g, b = light.get_diffuse_color(intercept)
+                                diffuse_color = [
+                                    diffuse_color[0] + r,
+                                    diffuse_color[1] + g,
+                                    diffuse_color[2] + b
+                                ]
 
-                            if light.light_type == "directional":
-                                light_direction = np.array(
-                                    light.direction) * -1
-                                light_direction = light_direction / \
-                                    np.linalg.norm(light_direction)
+                                r, g, b = light.get_specular_color(
+                                    intercept, self.camera_position)
+                                specular_color = [
+                                    specular_color[0] + r,
+                                    specular_color[1] + g,
+                                    specular_color[2] + b
+                                ]
 
-                                intensity = np.dot(
-                                    intercept.normal, light_direction)
+                        light_color = [
+                            ambient_color[0] +
+                            diffuse_color[0] + specular_color[0],
+                            ambient_color[1] +
+                            diffuse_color[1] + specular_color[1],
+                            ambient_color[2] +
+                            diffuse_color[2] + specular_color[2]
+                        ]
 
-                                intensity = max(0, min(1, intensity))
+                        final_color = [
+                            min(1, surface_color[0] * light_color[0]),
+                            min(1, surface_color[1] * light_color[1]),
+                            min(1, surface_color[2] * light_color[2])
+                        ]
 
-                                directional_light[0] += intensity * \
-                                    light.intensity * light.color[0]
-                                directional_light[1] += intensity * \
-                                    light.intensity * light.color[1]
-                                directional_light[2] += intensity * \
-                                    light.intensity * light.color[2]
-
-                        color_point[0] *= ambient_light[0] + \
-                            directional_light[0]
-                        color_point[1] *= ambient_light[1] + \
-                            directional_light[1]
-                        color_point[2] *= ambient_light[2] + \
-                            directional_light[2]
-
-                        color_point[0] = min(1, color_point[0])
-                        color_point[1] = min(1, color_point[1])
-                        color_point[2] = min(1, color_point[2])
-
-                        self.point(x, y, color_point)
+                        self.point(x, y, final_color)
