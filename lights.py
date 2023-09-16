@@ -97,4 +97,64 @@ class DirectionalLight(Light):
         return specular_color
 
 # TODO: Add PointLight class
+
+
+class PointLight(Light):
+    '''
+    PointLight Class
+
+    This class represents a point light.
+
+    Attributes:
+        point (tuple[float, float, float]): The position of the light.
+        intensity (float): The intensity of the light.
+        color (tuple[float, float, float]): The color of the light.
+    '''
+
+    def __init__(self, point: tuple[float, float, float] = (0, 0, 0), intensity: float = 1, color: tuple[float, float, float] = (1, 1, 1)) -> None:
+        super().__init__(intensity, color, "point")
+        self.point = point
+
+    def get_diffuse_color(self, intercept: Intercept) -> tuple[float, float, float]:
+        direction = np.subtract(self.point, intercept.point)
+        R = np.linalg.norm(direction)
+        direction = direction / R
+
+        intensity = np.dot(intercept.normal, direction) * self.intensity
+        intensity *= 1 - intercept.obj.material.ks
+
+        # inverse squares law
+        if R != 0:
+            intensity /= R**2
+        intensity = max(0, min(1, intensity))
+
+        diffuse_color = tuple([intensity * c for c in self.color])
+
+        return diffuse_color
+
+    def get_specular_color(self, intercept: Intercept, view_position: tuple[float, float, float]) -> tuple[float, float, float]:
+        direction = np.subtract(self.point, intercept.point)
+        R = np.linalg.norm(direction)
+        direction = direction / R
+
+        reflect_vector = calculate_reflect_vector(direction, intercept.normal)
+
+        view_direction = np.subtract(view_position, intercept.point)
+        view_direction = view_direction / np.linalg.norm(view_direction)
+
+        specular_intensity = max(
+            0, np.dot(view_direction, reflect_vector)) ** intercept.obj.material.specular
+
+        specular_intensity *= intercept.obj.material.ks
+        specular_intensity *= self.intensity
+
+        # inverse squares law
+        if R != 0:
+            specular_intensity /= R**2
+        specular_intensity = max(0, min(1, specular_intensity))
+
+        specular_color = tuple([specular_intensity * c for c in self.color])
+
+        return specular_color
+
 # TODO: Add SpotLight class

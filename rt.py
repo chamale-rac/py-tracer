@@ -110,10 +110,18 @@ class Raytracer(object):
                                 ]
                             else:
                                 shadow_intersect = None
+                                direction = None
+
                                 if light.light_type == "directional":
                                     direction = [i*-1 for i in light.direction]
-                                    shadow_intersect = self.cast_ray(
-                                        intercept.point,  direction, intercept.obj)
+                                elif light.light_type == "point":
+                                    direction = np.subtract(
+                                        light.point, intercept.point)
+                                    direction = direction / \
+                                        np.linalg.norm(direction)
+
+                                shadow_intersect = self.cast_ray(
+                                    intercept.point,  direction, intercept.obj)
 
                                 if shadow_intersect is None:
                                     r, g, b = light.get_diffuse_color(

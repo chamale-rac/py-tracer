@@ -4,8 +4,8 @@ from figures import *
 from lights import *
 from materials import *
 
-width = 512
-height = 512
+width = 256
+height = 256
 
 pygame.init()
 
@@ -29,9 +29,8 @@ raytracer.scene.append(
 raytracer.lights.append(AmbientLight(intensity=0.1))
 raytracer.lights.append(DirectionalLight(
     direction=(-1, -1, -1), intensity=0.7))
-raytracer.lights.append(DirectionalLight(
-    direction=(0, -2, -1), intensity=0.5, color=(1, 0, 1)))
-
+raytracer.lights.append(PointLight(point=(2.5, 0, -5),
+                        intensity=0.5, color=(1, 0, 1)))
 is_running = True
 
 while is_running:
