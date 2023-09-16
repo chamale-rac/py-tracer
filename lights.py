@@ -72,6 +72,7 @@ class DirectionalLight(Light):
 
         intensity = np.dot(intercept.normal, direction) * self.intensity
         intensity = max(0, min(1, intensity))
+        intensity *= 1 - intercept.obj.material.ks
 
         diffuse_color = tuple([intensity * c for c in self.color])
 
@@ -87,6 +88,8 @@ class DirectionalLight(Light):
 
         specular_intensity = max(
             0, np.dot(view_direction, reflect_vector)) ** intercept.obj.material.specular
+
+        specular_intensity *= intercept.obj.material.ks
         specular_intensity *= self.intensity
 
         specular_color = tuple([specular_intensity * c for c in self.color])

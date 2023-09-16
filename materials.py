@@ -10,6 +10,7 @@ class Material:
         specular_exponent (float): The specular exponent of the material.
     '''
 
-    def __init__(self, diffuse: tuple[float, float, float] = (1, 1, 1), specular: float = 1.0) -> None:
+    def __init__(self, diffuse: tuple[float, float, float] = (1, 1, 1), specular: float = 1.0, ks: float = 0.0) -> None:
         self.diffuse = diffuse
         self.specular = specular
+        self.ks = ks

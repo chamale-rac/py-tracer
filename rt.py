@@ -2,9 +2,8 @@ import pygame
 import math
 import numpy as np
 
-import materials
-import figures
-import lights
+from lights import Light
+from figures import Shape, Intercept
 
 
 class Raytracer(object):
@@ -21,8 +20,8 @@ class Raytracer(object):
         self.screen = screen
         self.width, self.height = screen.get_size()
 
-        self.scene = []
-        self.lights = []
+        self.scene: list[Shape] = []
+        self.lights: list[Light] = []
 
         self.camera_position = (0, 0, 0)
 
@@ -61,13 +60,17 @@ class Raytracer(object):
                 self.set_current_color(*color)
             self.screen.set_at((x, y), self.current_color)
 
-    def cast_ray(self, origin: tuple[float, float, float], direction: tuple[float, float, float]) -> bool:
+    def cast_ray(self, origin: tuple[float, float, float], direction: tuple[float, float, float], scene_obj: Shape = None) -> Intercept | None:
+        depth = float('inf')
         intercept = None
         hit = None
+
         for obj in self.scene:
-            intercept = obj.ray_intersect(origin, direction)
-            if intercept:
-                hit = intercept
+            if obj != scene_obj:
+                intercept = obj.ray_intersect(origin, direction)
+                if intercept and intercept.distance < depth:
+                    hit = intercept
+                    depth = intercept.distance
         return hit
 
     def render(self) -> None:
@@ -106,20 +109,28 @@ class Raytracer(object):
                                     ambient_color[2] + b
                                 ]
                             else:
-                                r, g, b = light.get_diffuse_color(intercept)
-                                diffuse_color = [
-                                    diffuse_color[0] + r,
-                                    diffuse_color[1] + g,
-                                    diffuse_color[2] + b
-                                ]
+                                shadow_intersect = None
+                                if light.light_type == "directional":
+                                    direction = [i*-1 for i in light.direction]
+                                    shadow_intersect = self.cast_ray(
+                                        intercept.point,  direction, intercept.obj)
 
-                                r, g, b = light.get_specular_color(
-                                    intercept, self.camera_position)
-                                specular_color = [
-                                    specular_color[0] + r,
-                                    specular_color[1] + g,
-                                    specular_color[2] + b
-                                ]
+                                if shadow_intersect is None:
+                                    r, g, b = light.get_diffuse_color(
+                                        intercept)
+                                    diffuse_color = [
+                                        diffuse_color[0] + r,
+                                        diffuse_color[1] + g,
+                                        diffuse_color[2] + b
+                                    ]
+
+                                    r, g, b = light.get_specular_color(
+                                        intercept, self.camera_position)
+                                    specular_color = [
+                                        specular_color[0] + r,
+                                        specular_color[1] + g,
+                                        specular_color[2] + b
+                                    ]
 
                         light_color = [
                             ambient_color[0] +
