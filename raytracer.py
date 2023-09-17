@@ -1,9 +1,12 @@
+import os
 import pygame
 from rt import Raytracer
 from figures import *
 from lights import *
 from materials import *
 
+# Constants
+file_path = './default.txt'
 width = 256
 height = 256
 
@@ -14,35 +17,69 @@ screen = pygame.display.set_mode(
 screen.set_alpha(None)
 
 raytracer = Raytracer(screen)
+materials = {}
 
-brick = Material(diffuse=(1, 0.4, 0.4), specular=8, ks=0.01)
-grass = Material(diffuse=(0.4, 1, 0.4), specular=32, ks=0.1)
-water = Material(diffuse=(0.4, 0.4, 1), specular=256, ks=0.2)
 
-raytracer.scene.append(
-    Sphere(position=(1, 1, -5), radius=0.5, material=grass))
-raytracer.scene.append(
-    Sphere(position=(0, 0, -7), radius=2, material=brick))
-raytracer.scene.append(
-    Sphere(position=(0.5, -1, -5), radius=0.3, material=water))
+def parseScene(filepath: str = "./default.txt"):
+    with open(filepath, "r") as f:
+        for line in f:
+            # Parse the line
+            tokens = line.strip().split()
+            if not tokens:
+                continue
+            keyword = tokens[0]
+            params = tokens[1:]
 
-raytracer.lights.append(AmbientLight(intensity=0.1))
-raytracer.lights.append(DirectionalLight(
-    direction=(-1, -1, -1), intensity=0.7))
-raytracer.lights.append(PointLight(point=(2.5, 0, -5),
-                        intensity=0.5, color=(1, 0, 1)))
+            # Create the object
+            if keyword == "ambient":
+                raytracer.lights.append(
+                    AmbientLight(intensity=float(params[0])))
+            elif keyword == "directional":
+                direction = tuple(map(float, params[:3]))
+                intensity = float(params[3])
+                raytracer.lights.append(DirectionalLight(
+                    direction=direction, intensity=intensity))
+            elif keyword == "point":
+                point = tuple(map(float, params[:3]))
+                intensity = float(params[3])
+                color = tuple(map(float, params[4:]))
+                raytracer.lights.append(PointLight(
+                    point=point, intensity=intensity, color=color))
+            elif keyword == "sphere":
+                position = tuple(map(float, params[:3]))
+                radius = float(params[3])
+                material_name = params[4]
+                material = materials[material_name]
+                raytracer.scene.append(
+                    Sphere(position=position, radius=radius, material=material))
+            elif keyword == "material":
+                name = params[0]
+                diffuse = tuple(map(float, params[1:4]))
+                specular = float(params[4])
+                ks = float(params[5])
+                materials[name] = Material(
+                    diffuse=diffuse, specular=specular, ks=ks)
+
+
+parseScene(file_path)
 is_running = True
-
+once = True
 while is_running:
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+        if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
             is_running = False
-        elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-            is_running = False
-
-    raytracer.clear()
-    raytracer.render()
-
-    pygame.display.flip()
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_r and pygame.key.get_mods() & pygame.KMOD_CTRL:
+            # Reload the scene file
+            raytracer.scene.clear()
+            raytracer.lights.clear()
+            materials.clear()
+            parseScene()
+            once = True
+            print("Reloaded scene file")
+    if once:
+        raytracer.clear()
+        raytracer.render()
+        pygame.display.flip()
+        once = False
 
 pygame.quit()

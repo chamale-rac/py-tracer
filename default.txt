@@ -1,0 +1,23 @@
+# Define the lights
+ambient 0.1
+directional -1 -1 -1 0.7
+point 2.5 0 -5 0.5 1 0 1
+
+# Define the materials
+material brick 1 0.4 0.4 8 0.01
+material grass 0.4 1 0.4 32 0.1
+material water 0.4 0.4 1 256 0.2
+
+# Materials for Snowman
+material snow 1 1 1 256 0.2
+
+# Define the body of the snowman
+sphere 0 -1 -5 1 snow
+sphere 0 0.25 -5 0.75 snow
+sphere 0 0.5 -5 0.25 snow
+
+
+# Define the spheres
+# sphere 1 1 -5 0.5 grass
+# sphere 0 0 -7 2 brick
+# sphere 0.5 -1 -5 0.3 water
