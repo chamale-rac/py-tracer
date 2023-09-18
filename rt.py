@@ -1,6 +1,6 @@
 import pygame
 import math
-import numpy as np
+import pmath as pm
 
 from lights import Light
 from figures import Shape, Intercept
@@ -87,9 +87,8 @@ class Raytracer(object):
                     position_y *= self.top_edge
 
                     # create ray
-                    direction = np.array(
-                        [position_x, position_y, -self.near_plane])
-                    direction /= np.linalg.norm(direction)
+                    direction = pm.normalize(
+                        (position_x, position_y, -self.near_plane))
 
                     intercept = self.cast_ray(self.camera_position, direction)
 
@@ -115,10 +114,9 @@ class Raytracer(object):
                                 if light.light_type == "directional":
                                     direction = [i*-1 for i in light.direction]
                                 elif light.light_type == "point":
-                                    direction = np.subtract(
+                                    direction = pm.subtract(
                                         light.point, intercept.point)
-                                    direction = direction / \
-                                        np.linalg.norm(direction)
+                                    direction = pm.normalize(direction)
 
                                 shadow_intersect = self.cast_ray(
                                     intercept.point,  direction, intercept.obj)
