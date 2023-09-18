@@ -7,7 +7,7 @@ Ray tracer using python and PyGame as main library.
 Simply run the next commands:
 
 ``` bash
-python app.py
+python raytracer.py
 ```
 
 That's all! 🎉 Wait unit it finish the render.
