@@ -77,7 +77,7 @@ class Raytracer(object):
         for x in range(self.viewport_x, self.viewport_x + self.viewport_width + 1):
             for y in range(self.viewport_y, self.viewport_y + self.viewport_height + 1):
                 if 0 <= x < self.width and 0 <= y < self.height:
-                    # from window coordinates to normalized device coordinates (NDC)
+                    # from window coordinates to normd device coordinates (NDC)
                     position_x = ((x + 0.5 - self.viewport_x) /
                                   self.viewport_width) * 2 - 1
                     position_y = ((y + 0.5 - self.viewport_y) /
@@ -87,7 +87,7 @@ class Raytracer(object):
                     position_y *= self.top_edge
 
                     # create ray
-                    direction = pm.normalize(
+                    direction = pm.norm(
                         (position_x, position_y, -self.near_plane))
 
                     intercept = self.cast_ray(self.camera_position, direction)
@@ -116,7 +116,7 @@ class Raytracer(object):
                                 elif light.light_type == "point":
                                     direction = pm.subtract(
                                         light.point, intercept.point)
-                                    direction = pm.normalize(direction)
+                                    direction = pm.norm(direction)
 
                                 shadow_intersect = self.cast_ray(
                                     intercept.point,  direction, intercept.obj)

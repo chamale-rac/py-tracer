@@ -1,4 +1,4 @@
-import numpy as np
+import pmath as pm
 import materials
 
 
@@ -37,9 +37,9 @@ class Sphere(Shape):
         self.radius = radius
 
     def ray_intersect(self, origin: tuple[float, float, float], direction: tuple[float, float, float]):
-        L = np.subtract(self.position, origin)
-        L_len = np.linalg.norm(L)
-        tca = np.dot(L, direction)
+        L = pm.subtract(self.position, origin)
+        L_len = pm.norm_magnitude(L)
+        tca = pm.dot(L, direction)
         d = (L_len**2 - tca**2) ** 0.5
 
         if d > self.radius:
@@ -54,9 +54,9 @@ class Sphere(Shape):
         if t0 < 0:
             return None
 
-        point = np.add(origin, np.multiply(t0, direction))
-        normal = np.subtract(point, self.position)
-        normal /= np.linalg.norm(normal)
+        point = pm.add(origin, pm.multiply(t0, direction))
+        normal = pm.subtract(point, self.position)
+        normal = pm.norm(normal)
 
         return Intercept(distance=t0,
                          point=point,
