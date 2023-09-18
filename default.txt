@@ -3,11 +3,6 @@ ambient 0.5
 directional -1 -1 -1 0.7
 point 2.5 0 -5 0.8 0 0 1
 
-# Example materials
-material brick 1 0.4 0.4 8 0.01
-material grass 0.4 1 0.4 32 0.1
-material water 0.4 0.4 1 256 0.2
-
 # Materials
 material snow 1 1 1 8 0.01
 material button 0.5 0.5 0.5 32 0.1
