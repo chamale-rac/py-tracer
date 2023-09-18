@@ -7,11 +7,12 @@ from materials import *
 
 # Constants
 file_path = './default.txt'
-width = 256
-height = 256
+width = 512
+height = 512
 
 pygame.init()
 
+pygame.display.set_caption(f"RT - {file_path}")
 screen = pygame.display.set_mode(
     (width, height), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE)
 screen.set_alpha(None)
@@ -59,6 +60,9 @@ def parseScene(filepath: str = "./default.txt"):
                 ks = float(params[5])
                 materials[name] = Material(
                     diffuse=diffuse, specular=specular, ks=ks)
+            elif keyword == "clear_color":
+                color = tuple(map(float, params[:3]))
+                raytracer.set_clear_color(*color)
 
 
 parseScene(file_path)
@@ -70,15 +74,18 @@ while is_running:
             is_running = False
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_r and pygame.key.get_mods() & pygame.KMOD_CTRL:
             # Reload the scene file
+            pygame.display.set_caption("Reloading...")
             raytracer.scene.clear()
             raytracer.lights.clear()
             materials.clear()
             parseScene()
             once = True
-            print("Reloaded scene file")
     if once:
+        pygame.display.set_caption("Rendering...")
         raytracer.clear()
         raytracer.render()
+        pygame.display.set_caption("Done!")
+        pygame.display.set_caption(f"RT - {file_path}")
         pygame.display.flip()
         once = False
 
