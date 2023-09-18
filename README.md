@@ -17,4 +17,5 @@ That's all! 🎉 Wait unit it finish the render.
 
 ## 🎭 Show off
 
-![image](https://github.com/chamale-rac/py-tracer/assets/63200593/998a5870-1840-4166-9b91-3d17d5c4e725)
+![image](https://github.com/chamale-rac/py-tracer/assets/63200593/efaa16d6-b921-4ada-ad2a-79c0b9cabdaa)
+
