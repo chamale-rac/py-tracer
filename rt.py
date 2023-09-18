@@ -77,7 +77,7 @@ class Raytracer(object):
         for x in range(self.viewport_x, self.viewport_x + self.viewport_width + 1):
             for y in range(self.viewport_y, self.viewport_y + self.viewport_height + 1):
                 if 0 <= x < self.width and 0 <= y < self.height:
-                    # from window coordinates to normd device coordinates (NDC)
+                    # from window coordinates to norm device coordinates (NDC)
                     position_x = ((x + 0.5 - self.viewport_x) /
                                   self.viewport_width) * 2 - 1
                     position_y = ((y + 0.5 - self.viewport_y) /

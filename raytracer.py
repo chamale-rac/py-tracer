@@ -1,4 +1,3 @@
-import os
 import pygame
 from rt import Raytracer
 from figures import *

@@ -1,3 +1,7 @@
+'''
+Custom vector math functions.
+'''
+
 import math
 
 
@@ -20,7 +24,7 @@ def norm(v: tuple[float, float, float]) -> tuple[float, float, float]:
 
 def norm_magnitude(v: tuple[float, float, float]) -> tuple[float, float, float]:
     '''
-    norm a vector and return the magnitude
+    Norm a vector and return the magnitude
     '''
     return math.sqrt(sum(x ** 2 for x in v))
 
@@ -33,7 +37,9 @@ def dot(v1: tuple[float, float, float], v2: tuple[float, float, float]) -> float
 
 
 def multiply(scalar: float, vector: tuple[float, float, float]) -> tuple[float, float, float]:
-    """Multiply a scalar by a vector element-wise."""
+    '''
+    Multiply a scalar by a vector element-wise.
+    '''
     return tuple(scalar * x for x in vector)
 
 
