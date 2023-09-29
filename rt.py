@@ -2,8 +2,14 @@ import pygame
 import math
 import numpy as np
 
-from lights import Light
+from lights import *
 from figures import Shape, Intercept
+from materials import *
+
+import threading
+import time
+
+MAX_RECURSION_DEPTH = 3
 
 
 class Raytracer(object):
@@ -30,6 +36,12 @@ class Raytracer(object):
 
         self.set_clear_color(0.25, 0.25, 0.25)
         self.set_current_color(1, 1, 1)
+
+        self.batch_size = 64
+        self.threads = False
+        self.render_using = 'normal'
+
+        self.store_render_points = []
 
     def viewport(self, x: int, y: int, width: int, height: int) -> None:
         self.viewport_x = x
@@ -60,7 +72,10 @@ class Raytracer(object):
                 self.set_current_color(*color)
             self.screen.set_at((x, y), self.current_color)
 
-    def cast_ray(self, origin: tuple[float, float, float], direction: tuple[float, float, float], scene_obj: Shape = None) -> Intercept | None:
+    def cast_ray(self, origin: tuple[float, float, float], direction: tuple[float, float, float], scene_obj: Shape = None, recursion: int = 0) -> Intercept | None:
+        if recursion >= MAX_RECURSION_DEPTH:
+            return None
+
         depth = float('inf')
         intercept = None
         hit = None
@@ -73,10 +88,136 @@ class Raytracer(object):
                     depth = intercept.distance
         return hit
 
+    def ray_color(self, intercept: Intercept, ray_direction: tuple[float, float, float], recursion: int = 0):
+        if intercept is None:
+            return [i/255 for i in self.clear_color]
+
+        material = intercept.obj.material
+        surface_color = material.diffuse
+
+        reflect_color = [0, 0, 0]
+        ambient_color = [0, 0, 0]
+        diffuse_color = [0, 0, 0]
+        specular_color = [0, 0, 0]
+        final_color = [0, 0, 0]
+
+        if material.material_type == OPAQUE:
+            for light in self.lights:
+                if light.light_type == "ambient":
+                    r, g, b = light.get_light_color()
+                    ambient_color = [
+                        ambient_color[0] + r,
+                        ambient_color[1] + g,
+                        ambient_color[2] + b
+                    ]
+                else:
+                    shadow_intersect = None
+                    direction = None
+
+                    if light.light_type == "directional":
+                        direction = [i*-1 for i in light.direction]
+                    elif light.light_type == "point":
+                        direction = pm.subtract(
+                            light.point, intercept.point)
+                        direction = pm.norm(direction)
+
+                    shadow_intersect = self.cast_ray(
+                        intercept.point,  direction, intercept.obj)
+
+                    if shadow_intersect is None:
+                        r, g, b = light.get_diffuse_color(
+                            intercept)
+                        diffuse_color = [
+                            diffuse_color[0] + r,
+                            diffuse_color[1] + g,
+                            diffuse_color[2] + b
+                        ]
+
+                        r, g, b = light.get_specular_color(
+                            intercept, self.camera_position)
+                        specular_color = [
+                            specular_color[0] + r,
+                            specular_color[1] + g,
+                            specular_color[2] + b
+                        ]
+
+        elif material.material_type == REFLECTIVE:
+            reflect = pm.reflect_vector([i*-1 for i in ray_direction],
+                                        intercept.normal)
+
+            reflect_intercept = self.cast_ray(
+                intercept.point, reflect, intercept.obj, recursion + 1)
+
+            reflect_color = self.ray_color(
+                reflect_intercept, reflect, recursion + 1)
+
+        light_color = [
+            ambient_color[0] +
+            diffuse_color[0] + specular_color[0] + reflect_color[0],
+            ambient_color[1] +
+            diffuse_color[1] + specular_color[1] + reflect_color[1],
+            ambient_color[2] +
+            diffuse_color[2] + specular_color[2] + reflect_color[2]
+        ]
+
+        final_color = [
+            min(1, surface_color[0] * light_color[0]),
+            min(1, surface_color[1] * light_color[1]),
+            min(1, surface_color[2] * light_color[2])
+        ]
+
+        return final_color
+
+    def pixel_render(self, x: int, y: int) -> None:
+        # from window coordinates to norm device coordinates (NDC)
+        position_x = ((x + 0.5 - self.viewport_x) /
+                      self.viewport_width) * 2 - 1
+        position_y = ((y + 0.5 - self.viewport_y) /
+                      self.viewport_height) * 2 - 1
+
+        position_x *= self.right_edge
+        position_y *= self.top_edge
+
+        # create ray
+        direction = pm.norm(
+            (position_x, position_y, -self.near_plane))
+
+        intercept = self.cast_ray(self.camera_position, direction)
+        ray_color = self.ray_color(intercept, direction)
+
+        self.point(x, y, ray_color)
+
+        pygame.display.flip()
+
     def render(self) -> None:
-        for x in range(self.viewport_x, self.viewport_x + self.viewport_width + 1):
-            for y in range(self.viewport_y, self.viewport_y + self.viewport_height + 1):
+        start_time = time.time()
+        if self.render_using == 'threads':
+            print("Rendering with threads...")
+            tasks = []
+            for x in range(self.viewport_x, self.viewport_x + self.viewport_width, self.batch_size):
+                for y in range(self.viewport_y, self.viewport_y + self.viewport_height, self.batch_size):
+                    x_end = min(x + self.batch_size, self.width)
+                    y_end = min(y + self.batch_size, self.height)
+                    tasks.append(threading.Thread(
+                        target=self.batch_render, args=(x, x_end, y, y_end)))
+            for task in tasks:
+                task.start()
+            for task in tasks:
+                task.join()
+        else:
+            print("Rendering without threads...")
+            for x in range(self.viewport_x, self.viewport_x + self.viewport_width):
+                for y in range(self.viewport_y, self.viewport_y + self.viewport_height):
+                    self.pixel_render(x, y)
+
+        end_time = time.time()
+        print("Rendering took {} seconds".format(end_time - start_time))
+
+    def batch_render(self, x_start, x_end, y_start, y_end) -> None:
+        for x in range(x_start, x_end):
+            for y in range(y_start, y_end):
                 if 0 <= x < self.width and 0 <= y < self.height:
+<<<<<<< Updated upstream
                     # from window coordinates to normalized device coordinates (NDC)
                     position_x = ((x + 0.5 - self.viewport_x) /
                                   self.viewport_width) * 2 - 1
@@ -156,3 +297,6 @@ class Raytracer(object):
                         ]
 
                         self.point(x, y, final_color)
+=======
+                    self.pixel_render(x, y)
+>>>>>>> Stashed changes

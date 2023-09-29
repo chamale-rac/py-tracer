@@ -1,0 +1,23 @@
+# Rendering configurations
+# format: config_name value
+batch_size 90
+render_using normal
+
+# Define the lights
+# format: light_type x y z intensity
+ambient 0.1
+directional -1 -1 -1 0.7
+point 2.5 0 -5 1 1 0 1
+
+# Define the materials
+# format: material name r g b specular ks material_type
+material brick 1 0.4 0.4 8 0.01 OPAQUE
+material grass 0.4 1 0.4 32 0.1 OPAQUE
+material water 0.4 0.4 1 256 0.2 OPAQUE
+material mirror 0.9 0.9 0.9 64 0.2 REFLECTIVE
+
+# Define the spheres
+# format: sphere x y z radius material_name
+sphere 1 1 -5 0.5 grass
+sphere 0 0 -7 2 mirror
+sphere 0.5 -1 -5 0.3 water

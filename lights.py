@@ -2,6 +2,7 @@ from figures import Intercept
 import numpy as np
 
 
+<<<<<<< Updated upstream
 def calculate_reflect_vector(vector: tuple[float, float, float], normal: tuple[float, float, float]) -> tuple[float, float, float]:
     reflect = 2 * np.dot(vector, normal)
     reflect = np.multiply(reflect, normal)
@@ -10,6 +11,8 @@ def calculate_reflect_vector(vector: tuple[float, float, float], normal: tuple[f
     return reflect
 
 
+=======
+>>>>>>> Stashed changes
 class Light:
     '''
     Light Class
@@ -81,7 +84,7 @@ class DirectionalLight(Light):
     def get_specular_color(self, intercept: Intercept, view_position: tuple[float, float, float]) -> tuple[float, float, float]:
         direction = [i*-1 for i in self.direction]
 
-        reflect_vector = calculate_reflect_vector(direction, intercept.normal)
+        reflect_vector = pm.reflect_vector(direction, intercept.normal)
 
         view_direction = np.subtract(view_position, intercept.point)
         view_direction = view_direction / np.linalg.norm(view_direction)
@@ -137,7 +140,7 @@ class PointLight(Light):
         R = np.linalg.norm(direction)
         direction = direction / R
 
-        reflect_vector = calculate_reflect_vector(direction, intercept.normal)
+        reflect_vector = pm.reflect_vector(direction, intercept.normal)
 
         view_direction = np.subtract(view_position, intercept.point)
         view_direction = view_direction / np.linalg.norm(view_direction)
