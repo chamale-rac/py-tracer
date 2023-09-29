@@ -14,7 +14,7 @@ point 2.5 0 -5 1 1 0 1
 material brick 1 0.4 0.4 8 0.01 OPAQUE
 material grass 0.4 1 0.4 32 0.1 OPAQUE
 material water 0.4 0.4 1 256 0.2 OPAQUE
-material mirror 0.9 0.9 0.9 64 0.2 REFLECTIVE
+material mirror 0.9 0.4 0.4 64 0.2 REFLECTIVE
 
 # Define the spheres
 # format: sphere x y z radius material_name

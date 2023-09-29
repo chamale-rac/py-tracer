@@ -127,6 +127,7 @@ class Raytracer(object):
                     if shadow_intersect is None:
                         r, g, b = light.get_diffuse_color(
                             intercept)
+
                         diffuse_color = [
                             diffuse_color[0] + r,
                             diffuse_color[1] + g,
@@ -135,6 +136,7 @@ class Raytracer(object):
 
                         r, g, b = light.get_specular_color(
                             intercept, self.camera_position)
+
                         specular_color = [
                             specular_color[0] + r,
                             specular_color[1] + g,
@@ -150,6 +152,31 @@ class Raytracer(object):
 
             reflect_color = self.ray_color(
                 reflect_intercept, reflect, recursion + 1)
+
+            for light in self.lights:
+                if light.light_type != "ambient":
+                    shadow_intersect = None
+                    direction = None
+
+                    if light.light_type == "directional":
+                        direction = [i*-1 for i in light.direction]
+                    elif light.light_type == "point":
+                        direction = pm.subtract(
+                            light.point, intercept.point)
+                        direction = pm.norm(direction)
+
+                    shadow_intersect = self.cast_ray(
+                        intercept.point,  direction, intercept.obj)
+
+                    if shadow_intersect is None:
+                        r, g, b = light.get_specular_color(
+                            intercept, self.camera_position)
+
+                        specular_color = [
+                            specular_color[0] + r,
+                            specular_color[1] + g,
+                            specular_color[2] + b
+                        ]
 
         light_color = [
             ambient_color[0] +
