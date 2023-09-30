@@ -8,9 +8,9 @@ from materials import *
 
 def app():
     # Constants
-    file_path = './assets/scenes/test_scene.txt'
-    environment_map_path = './assets/textures/environment/sunset_jhbcentral_8k.png'
-    screen_shot_path = './assets/screenshots/screenshot.png'
+    file_path = './assets/scenes/222.txt'
+    environment_map_path = './assets/textures/environment/brown_photostudio_05_8k.png'
+    screen_shot_path = './assets/screenshots/'
     # width = 1080
     # height = 720
     # width = 256
@@ -19,15 +19,17 @@ def app():
     # height = 128
     # height = 720
     # width = 1280
-    height = 360
-    width = 640
+    # height = 360
+    # width = 640
+    width = 1920
+    height = 1080
     pygame.init()
 
     pygame.display.set_caption(f"RT - {file_path}")
 
     # pygame.FULLSCREEN
     screen = pygame.display.set_mode(
-        (width, height),  pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE)
+        (width, height), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE | pygame.FULLSCREEN)
     screen.set_alpha(None)
 
     raytracer = Raytracer(screen)
@@ -109,9 +111,13 @@ def app():
                 parseScene(file_path)
                 once = True
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_s and pygame.key.get_mods() & pygame.KMOD_CTRL:
+                pygame.display.set_caption("Saving...")
                 pygame.image.save(screen, os.path.join(
-                    os.path.dirname(file_path), f'screenshot{ss}.png'))
+                    os.path.dirname(screen_shot_path), f'screenshot{ss}.png'))
                 ss += 1
+                print(
+                    f"Saved screenshot: {screen_shot_path}screenshot{ss}.png")
+                pygame.display.set_caption(f"RT - {file_path}")
 
         if once:
             pygame.display.set_caption("Rendering...")
