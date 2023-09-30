@@ -207,14 +207,39 @@ class Raytracer(object):
             outside = pm.dot(ray_direction, intercept.normal) < 0
             bias = [i*0.001 for i in intercept.normal]
 
-            # reflect = pm.reflect_vector(
-            #     [i*-1 for i in ray_direction], intercept.normal)
-            # reflect_origin = pm.add(intercept.point, bias) if outside else pm.subtract(
-            #     intercept.point, bias)
-            # reflect_intercept = self.cast_ray(
-            #     reflect_origin, reflect, None, recursion + 1)
-            # reflect_color = self.ray_color(
-            #     reflect_intercept, reflect, recursion + 1)
+            reflect = pm.reflect_vector(
+                [i*-1 for i in ray_direction], intercept.normal)
+            reflect_origin = pm.add(intercept.point, bias) if outside else pm.subtract(
+                intercept.point, bias)
+            reflect_intercept = self.cast_ray(
+                reflect_origin, reflect, None, recursion + 1)
+            reflect_color = self.ray_color(
+                reflect_intercept, reflect, recursion + 1)
+
+            for light in self.lights:
+                if light.light_type != "ambient":
+                    shadow_intersect = None
+                    direction = None
+
+                    if light.light_type == "directional":
+                        direction = [i*-1 for i in light.direction]
+                    elif light.light_type == "point":
+                        direction = pm.subtract(
+                            light.point, intercept.point)
+                        direction = pm.norm(direction)
+
+                    shadow_intersect = self.cast_ray(
+                        intercept.point,  direction, intercept.obj)
+
+                    if shadow_intersect is None:
+                        r, g, b = light.get_specular_color(
+                            intercept, self.camera_position)
+
+                        specular_color = [
+                            specular_color[0] + r,
+                            specular_color[1] + g,
+                            specular_color[2] + b
+                        ]
 
             if not pm.total_internal_reflection(ray_direction, intercept.normal, 1.0, material.ior):
                 refract = pm.refract_vector(
@@ -225,6 +250,14 @@ class Raytracer(object):
                     refract_origin, refract, None, recursion + 1)
                 refract_color = self.ray_color(
                     refract_intercept, refract, recursion + 1)
+
+                fresnel = pm.fresnel(
+                    ray_direction, intercept.normal, 1.0, material.ior)
+                Kr = fresnel[0]
+                Kt = fresnel[1]
+
+                reflect_color = pm.multiply(Kr, reflect_color)
+                refract_color = pm.multiply(Kt, refract_color)
 
         light_color = [
             ambient_color[0] +

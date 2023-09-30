@@ -9,19 +9,25 @@ from materials import *
 def app():
     # Constants
     file_path = './assets/scenes/test_scene.txt'
-    environment_map_path = './assets/textures/environment/vertopal.com_sunset_jhbcentral_2k.bmp'
+    environment_map_path = './assets/textures/environment/sunset_jhbcentral_8k.png'
+    screen_shot_path = './assets/screenshots/screenshot.png'
     # width = 1080
     # height = 720
-    width = 256
-    height = 256
+    # width = 256
+    # height = 256
     # width = 128
     # height = 128
-
+    # height = 720
+    # width = 1280
+    height = 360
+    width = 640
     pygame.init()
 
     pygame.display.set_caption(f"RT - {file_path}")
+
+    # pygame.FULLSCREEN
     screen = pygame.display.set_mode(
-        (width, height), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE)
+        (width, height),  pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE)
     screen.set_alpha(None)
 
     raytracer = Raytracer(screen)
@@ -87,6 +93,7 @@ def app():
 
     parseScene(file_path)
 
+    ss = 0
     is_running = True
     once = True
     while is_running:
@@ -101,6 +108,11 @@ def app():
                 materials.clear()
                 parseScene(file_path)
                 once = True
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_s and pygame.key.get_mods() & pygame.KMOD_CTRL:
+                pygame.image.save(screen, os.path.join(
+                    os.path.dirname(file_path), f'screenshot{ss}.png'))
+                ss += 1
+
         if once:
             pygame.display.set_caption("Rendering...")
             raytracer.clear()

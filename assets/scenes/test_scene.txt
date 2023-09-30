@@ -1,7 +1,10 @@
 # Rendering configurations
 # format: config_name value
-batch_size 360
-render_using normal
+batch_size 40
+# batch_size 40 using 640x360
+# batch_size 80  using 1280x720
+# batch_size 120 using 1920x1080
+render_using threads
 
 # Define textures
 # format: texture texture_name texture_file
@@ -23,7 +26,8 @@ material mirror 0.9 0.9 0.9 64 0.2 REFLECTIVE None 1.0
 material blue_mirror 0.4 0.4 0.9 32 0.15 REFLECTIVE None 1.0
 material gore 1 1 1 1.0 0.0 OPAQUE gore_texture 1.0
 material chess 1 1 1 64 0.1 REFLECTIVE chess 1.0
-material glass 0.9 0.9 0.9 64 0.2 TRANSPARENT None 1.5
+material glass 0.9 0.9 0.9 64 0.15 TRANSPARENT None 1.5
+material diamond 0.9 0.9 0.9 128 0.2 TRANSPARENT None 2.417
 
 # Define the spheres
 # format: sphere x y z radius material_name
@@ -33,4 +37,6 @@ material glass 0.9 0.9 0.9 64 0.2 TRANSPARENT None 1.5
 # sphere 2 0 -7 2 gore
 # sphere 0 -1 -5 0.5 mirror
 
-sphere 0 0 -5 1 glass
+sphere -1 0 -5 1 glass
+sphere 1 0 -5 0.7 diamond
+sphere 0 1 -8 1 brick
