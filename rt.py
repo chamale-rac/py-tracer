@@ -120,6 +120,7 @@ class Raytracer(object):
                 surface_color, texture_color)]
 
         reflect_color = [0, 0, 0]
+        refract_color = [0, 0, 0]
         ambient_color = [0, 0, 0]
         diffuse_color = [0, 0, 0]
         specular_color = [0, 0, 0]
@@ -202,13 +203,39 @@ class Raytracer(object):
                             specular_color[2] + b
                         ]
 
+        elif material.material_type == TRANSPARENT:
+            outside = pm.dot(ray_direction, intercept.normal) < 0
+            bias = [i*0.001 for i in intercept.normal]
+
+            # reflect = pm.reflect_vector(
+            #     [i*-1 for i in ray_direction], intercept.normal)
+            # reflect_origin = pm.add(intercept.point, bias) if outside else pm.subtract(
+            #     intercept.point, bias)
+            # reflect_intercept = self.cast_ray(
+            #     reflect_origin, reflect, None, recursion + 1)
+            # reflect_color = self.ray_color(
+            #     reflect_intercept, reflect, recursion + 1)
+
+            if not pm.total_internal_reflection(ray_direction, intercept.normal, 1.0, material.ior):
+                refract = pm.refract_vector(
+                    ray_direction, intercept.normal, 1.0, material.ior)
+                refract_origin = pm.subtract(
+                    intercept.point, bias) if outside else pm.add(intercept.point, bias)
+                refract_intercept = self.cast_ray(
+                    refract_origin, refract, None, recursion + 1)
+                refract_color = self.ray_color(
+                    refract_intercept, refract, recursion + 1)
+
         light_color = [
             ambient_color[0] +
-            diffuse_color[0] + specular_color[0] + reflect_color[0],
+            diffuse_color[0] + specular_color[0] +
+            reflect_color[0] + refract_color[0],
             ambient_color[1] +
-            diffuse_color[1] + specular_color[1] + reflect_color[1],
+            diffuse_color[1] + specular_color[1] +
+            reflect_color[1] + refract_color[1],
             ambient_color[2] +
-            diffuse_color[2] + specular_color[2] + reflect_color[2]
+            diffuse_color[2] + specular_color[2] +
+            reflect_color[2] + refract_color[2]
         ]
 
         final_color = [

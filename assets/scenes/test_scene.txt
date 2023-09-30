@@ -15,19 +15,22 @@ directional -1 -1 -1 0.7
 point 2.5 0 -5 1 1 0 1.5
 
 # Define the materials
-# format: material name r g b specular ks material_type
-material brick 1 0.4 0.4 8 0.01 OPAQUE None
-material grass 0.4 1 0.4 32 0.1 OPAQUE None
-material water 0.4 0.4 1 256 0.2 OPAQUE None
-material mirror 0.9 0.9 0.9 64 0.2 REFLECTIVE None
-material blue_mirror 0.4 0.4 0.9 32 0.15 REFLECTIVE None
-material gore 1 1 1 1.0 0.0 OPAQUE gore_texture
-material chess 1 1 1 64 0.1 REFLECTIVE chess
+# format: material name r g b specular ks material_type ior
+material brick 1 0.4 0.4 8 0.01 OPAQUE None 1.0
+material grass 0.4 1 0.4 32 0.1 OPAQUE None 1.0
+material water 0.4 0.4 1 256 0.2 OPAQUE None 1.0
+material mirror 0.9 0.9 0.9 64 0.2 REFLECTIVE None 1.0
+material blue_mirror 0.4 0.4 0.9 32 0.15 REFLECTIVE None 1.0
+material gore 1 1 1 1.0 0.0 OPAQUE gore_texture 1.0
+material chess 1 1 1 64 0.1 REFLECTIVE chess 1.0
+material glass 0.9 0.9 0.9 64 0.2 TRANSPARENT None 1.5
 
 # Define the spheres
 # format: sphere x y z radius material_name
 # sphere 1 1 -5 0.5 grass
 # sphere 0.5 -1 -5 0.3 water
-sphere -2 0 -7 1.5 chess
-sphere 2 0 -7 2 gore
-sphere 0 -1 -5 0.5 mirror
+# sphere -2 0 -7 1.5 chess
+# sphere 2 0 -7 2 gore
+# sphere 0 -1 -5 0.5 mirror
+
+sphere 0 0 -5 1 glass

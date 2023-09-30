@@ -56,3 +56,51 @@ def reflect_vector(vector: tuple[float, float, float], normal: tuple[float, floa
     reflect = subtract(reflect, vector)
     reflect = norm(reflect)
     return reflect
+
+
+def refract_vector(vector: tuple[float, float, float], normal: tuple[float, float, float], n1: float, n2: float) -> tuple[float, float, float]:
+    '''
+    Calculate the refracted vector using Snell's law.
+
+    Attributes:
+        vector (tuple[float, float, float]): The incident vector.
+        normal (tuple[float, float, float]): The normal vector.
+        n1 (float): The index of refraction of the external medium.
+        n2 (float): The index of refraction of the internal medium.
+    '''
+
+    c1 = dot(normal, vector)
+
+    if c1 < 0:
+        c1 = -c1
+    else:
+        normal = multiply(-1, normal)
+        n1, n2 = n2, n1
+
+    n = n1 / n2
+
+    part1 = multiply(n, add(vector, multiply(c1, normal)))
+    part2 = multiply(math.sqrt(1 - math.pow(n, 2) *
+                     (1 - math.pow(c1, 2))), normal)
+
+    T = subtract(part1, part2)
+
+    return T
+
+
+def total_internal_reflection(vector: tuple[float, float, float], normal: tuple[float, float, float], n1: float, n2: float) -> tuple[float, float, float]:
+    c1 = dot(normal, vector)
+
+    if c1 < 0:
+        c1 = -c1
+    else:
+        normal = multiply(-1, normal)
+        n1, n2 = n2, n1
+
+    if n1 < n2:
+        return False
+
+    theta1 = math.acos(c1)
+    thetaC = math.asin(n2/n1)
+
+    return theta1 >= thetaC

@@ -74,8 +74,9 @@ def app():
                     ks = float(params[5])
                     material_type = material_types[params[6]]
                     texture = textures[params[7]]
+                    ior = float(params[8])
                     materials[name] = Material(
-                        diffuse=diffuse, specular=specular, ks=ks, material_type=material_type, texture=texture)
+                        diffuse=diffuse, specular=specular, ks=ks, material_type=material_type, texture=texture, ior=ior)
                 elif keyword == "clear_color":
                     color = tuple(map(float, params[:3]))
                     raytracer.set_clear_color(*color)
