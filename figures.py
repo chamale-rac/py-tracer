@@ -1,4 +1,5 @@
-import numpy as np
+import pmath as pm
+import math
 import materials
 
 
@@ -37,9 +38,9 @@ class Sphere(Shape):
         self.radius = radius
 
     def ray_intersect(self, origin: tuple[float, float, float], direction: tuple[float, float, float]):
-        L = np.subtract(self.position, origin)
-        L_len = np.linalg.norm(L)
-        tca = np.dot(L, direction)
+        L = pm.subtract(self.position, origin)
+        L_len = pm.norm_magnitude(L)
+        tca = pm.dot(L, direction)
         d = (L_len**2 - tca**2) ** 0.5
 
         if d > self.radius:
@@ -54,14 +55,18 @@ class Sphere(Shape):
         if t0 < 0:
             return None
 
-        point = np.add(origin, np.multiply(t0, direction))
-        normal = np.subtract(point, self.position)
-        normal /= np.linalg.norm(normal)
+        point = pm.add(origin, pm.multiply(t0, direction))
+        normal = pm.subtract(point, self.position)
+        normal = pm.norm(normal)
+
+        u = math.atan2(normal[2], normal[0]) / (2 * math.pi) + 0.5
+        v = math.acos(normal[1]) / math.pi
 
         return Intercept(distance=t0,
                          point=point,
                          normal=normal,
-                         obj=self)
+                         obj=self,
+                         texture_coords=(u, v))
 
 
 class Intercept(object):
@@ -76,8 +81,9 @@ class Intercept(object):
         normal (tuple[float, float, float]): The normal of the intercept.
     '''
 
-    def __init__(self, distance: float,  point: tuple[float, float, float], normal: tuple[float, float, float],  obj: Shape) -> None:
+    def __init__(self, distance: float,  point: tuple[float, float, float], normal: tuple[float, float, float],  obj: Shape, texture_coords: tuple[float, float]) -> None:
         self.distance = distance
         self.point = point
         self.normal = normal
         self.obj = obj
+        self.texture_coords = texture_coords

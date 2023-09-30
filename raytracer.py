@@ -8,11 +8,14 @@ from materials import *
 
 def app():
     # Constants
-    file_path = './test_scene.txt'
+    file_path = './assets/scenes/test_scene.txt'
+    environment_map_path = './assets/textures/environment/vertopal.com_sunset_jhbcentral_2k.bmp'
     # width = 1080
     # height = 720
     width = 256
     height = 256
+    # width = 128
+    # height = 128
 
     pygame.init()
 
@@ -22,7 +25,11 @@ def app():
     screen.set_alpha(None)
 
     raytracer = Raytracer(screen)
+    raytracer.environment_map = pygame.image.load(environment_map_path)
     materials = {}
+    textures = {
+        'None': None,
+    }
 
     def parseScene(filepath: str = "./default.txt"):
         with open(filepath, "r") as f:
@@ -56,14 +63,19 @@ def app():
                     material = materials[material_name]
                     raytracer.scene.append(
                         Sphere(position=position, radius=radius, material=material))
+                elif keyword == "texture":
+                    if params[0] != 'None':
+                        texture = pygame.image.load(params[1])
+                        textures[params[0]] = texture
                 elif keyword == "material":
                     name = params[0]
                     diffuse = tuple(map(float, params[1:4]))
                     specular = float(params[4])
                     ks = float(params[5])
                     material_type = material_types[params[6]]
+                    texture = textures[params[7]]
                     materials[name] = Material(
-                        diffuse=diffuse, specular=specular, ks=ks, material_type=material_type)
+                        diffuse=diffuse, specular=specular, ks=ks, material_type=material_type, texture=texture)
                 elif keyword == "clear_color":
                     color = tuple(map(float, params[:3]))
                     raytracer.set_clear_color(*color)

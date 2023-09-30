@@ -1,6 +1,6 @@
 import pygame
+from pygame import Surface
 import math
-import numpy as np
 
 from lights import *
 from figures import Shape, Intercept
@@ -22,7 +22,7 @@ class Raytracer(object):
         screen (pygame.display): The screen to render to.
     '''
 
-    def __init__(self, screen: pygame.display) -> None:
+    def __init__(self, screen: Surface) -> None:
         self.screen = screen
         self.width, self.height = screen.get_size()
 
@@ -41,7 +41,7 @@ class Raytracer(object):
         self.threads = False
         self.render_using = 'normal'
 
-        self.store_render_points = []
+        self.environment_map: Surface = None
 
     def viewport(self, x: int, y: int, width: int, height: int) -> None:
         self.viewport_x = x
@@ -65,7 +65,7 @@ class Raytracer(object):
         self.current_color = (int(r * 255), int(g * 255), int(b * 255))
 
     def point(self, x: int, y: int, color: tuple[float, float, float] = None) -> None:
-        # invert y
+        # # invert y
         y = self.height - y
         if 0 <= x < self.width and 0 <= y < self.height:
             if color:
@@ -90,10 +90,34 @@ class Raytracer(object):
 
     def ray_color(self, intercept: Intercept, ray_direction: tuple[float, float, float], recursion: int = 0):
         if intercept is None:
-            return [i/255 for i in self.clear_color]
+            if self.environment_map:
+                x = (math.atan2(ray_direction[2],
+                                ray_direction[0]) / (2 * math.pi) + 0.5) * self.environment_map.get_width()
+                y = math.acos(ray_direction[1]) / math.pi * \
+                    self.environment_map.get_height()
+
+                environment_color = self.environment_map.get_at(
+                    (int(x), int(y)))
+
+                return [i/255 for i in environment_color[:3]]
+            else:
+                return None
 
         material = intercept.obj.material
         surface_color = material.diffuse
+
+        if material.texture and intercept.texture_coords:
+            texture_x = intercept.texture_coords[0] * \
+                material.texture.get_width()
+            texture_y = intercept.texture_coords[1] * \
+                material.texture.get_height()
+
+            texture_color = material.texture.get_at(
+                (int(texture_x), int(texture_y)))
+
+            texture_color = [i/255 for i in texture_color[:3]]
+            surface_color = [i*j for i, j in zip(
+                surface_color, texture_color)]
 
         reflect_color = [0, 0, 0]
         ambient_color = [0, 0, 0]
@@ -212,9 +236,9 @@ class Raytracer(object):
         intercept = self.cast_ray(self.camera_position, direction)
         ray_color = self.ray_color(intercept, direction)
 
-        self.point(x, y, ray_color)
-
-        pygame.display.flip()
+        if ray_color:
+            self.point(x, y, ray_color)
+            pygame.display.flip()
 
     def render(self) -> None:
         start_time = time.time()
