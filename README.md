@@ -15,7 +15,7 @@ That's all! 🎉 Wait unit it finish the render.
 ### ✅ Tips
 
 - ℹ️ You can modify the scene using the [./assets/scenes/222.txt](./assets/scenes/222.txt) or by creating a new scene file and defining it on the program.
-- 🧠 With **CTRL+R** you can update the scene bases on the scene file.
+- 🧠 With **CTRL+R** you can update the scene based on the scene file.
 - 🧠 With **CTRL+S** you can take screenshots.
 
 ## 🎭 Show off
