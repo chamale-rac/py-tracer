@@ -55,6 +55,7 @@ class Sphere(Shape):
         if t0 < 0:
             return None
 
+        # point = origin + t0 * direction
         point = pm.add(origin, pm.multiply(t0, direction))
         normal = pm.subtract(point, self.position)
         normal = pm.norm(normal)
@@ -67,6 +68,39 @@ class Sphere(Shape):
                          normal=normal,
                          obj=self,
                          texture_coords=(u, v))
+
+
+class Plane(Shape):
+    def __init__(self, position: tuple[float, float, float], normal: tuple[float, float, float], material: materials.Material) -> None:
+        super().__init__(position, material)
+        self.normal = pm.norm(normal)
+
+    def ray_intersect(self, origin: tuple[float, float, float], direction: tuple[float, float, float]) -> bool:
+        '''
+        Ray intersect method, returns the intercept of the ray with the plane.
+
+        Described as: distance = (position - origin) . normal / (direction . normal)
+        '''
+        denom = pm.dot(direction, self.normal)
+        if abs(denom) <= 0.0001:
+            # The ray is parallel to the plane
+            return None
+
+        num = pm.dot(pm.subtract(self.position, origin), self.normal)
+        t = num / denom
+
+        if t < 0:
+            # The plane is behind the ray
+            return None
+
+        # point = origin + t0 * direction
+        point = pm.add(origin, pm.multiply(t, direction))
+
+        return Intercept(distance=t,
+                         point=point,
+                         normal=self.normal,
+                         obj=self,
+                         texture_coords=None)
 
 
 class Intercept(object):

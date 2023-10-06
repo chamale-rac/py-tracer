@@ -21,15 +21,17 @@ def app():
     # width = 1280
     # height = 360
     # width = 640
-    width = 1920
-    height = 1080
+    # width = 1920
+    # height = 1080
+    width = 256
+    height = 256
     pygame.init()
 
     pygame.display.set_caption(f"RT - {file_path}")
 
     # pygame.FULLSCREEN
     screen = pygame.display.set_mode(
-        (width, height), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE | pygame.FULLSCREEN)
+        (width, height), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE)
     screen.set_alpha(None)
 
     raytracer = Raytracer(screen)
@@ -71,6 +73,12 @@ def app():
                     material = materials[material_name]
                     raytracer.scene.append(
                         Sphere(position=position, radius=radius, material=material))
+                elif keyword == "plane":
+                    position = tuple(map(float, params[:3]))
+                    normal = tuple(map(float, params[3:6]))
+                    material_name = params[6]
+                    raytracer.scene.append(Plane(
+                        position=position, normal=normal, material=materials[material_name]))
                 elif keyword == "texture":
                     if params[0] != 'None':
                         texture = pygame.image.load(params[1])
