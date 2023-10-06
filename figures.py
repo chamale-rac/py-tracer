@@ -39,7 +39,7 @@ class Sphere(Shape):
 
     def ray_intersect(self, origin: tuple[float, float, float], direction: tuple[float, float, float]):
         L = pm.subtract(self.position, origin)
-        L_len = pm.norm_magnitude(L)
+        L_len = pm.norm_mag(L)
         tca = pm.dot(L, direction)
         d = (L_len**2 - tca**2) ** 0.5
 
@@ -98,6 +98,30 @@ class Plane(Shape):
 
         return Intercept(distance=t,
                          point=point,
+                         normal=self.normal,
+                         obj=self,
+                         texture_coords=None)
+
+
+class Disk(Plane):
+    def __init__(self, position: tuple[float, float, float], normal: tuple[float, float, float], radius: float, material: materials.Material) -> None:
+        super().__init__(position, normal, material)
+        self.radius = radius
+
+    def ray_intersect(self, origin: tuple[float, float, float], direction: tuple[float, float, float]) -> bool:
+        plane_intersect = super().ray_intersect(origin, direction)
+
+        if plane_intersect is None:
+            return None
+
+        contact_distance = pm.subtract(plane_intersect.point, self.position)
+        contact_distance = pm.norm_mag(contact_distance)
+
+        if contact_distance > self.radius:
+            return None
+
+        return Intercept(distance=plane_intersect.distance,
+                         point=plane_intersect.point,
                          normal=self.normal,
                          obj=self,
                          texture_coords=None)

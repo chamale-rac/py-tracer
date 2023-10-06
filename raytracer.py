@@ -79,6 +79,13 @@ def app():
                     material_name = params[6]
                     raytracer.scene.append(Plane(
                         position=position, normal=normal, material=materials[material_name]))
+                elif keyword == "disk":
+                    position = tuple(map(float, params[:3]))
+                    normal = tuple(map(float, params[3:6]))
+                    radius = float(params[6])
+                    material_name = params[7]
+                    raytracer.scene.append(Disk(
+                        position=position, normal=normal, radius=radius, material=materials[material_name]))
                 elif keyword == "texture":
                     if params[0] != 'None':
                         texture = pygame.image.load(params[1])

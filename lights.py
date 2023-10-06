@@ -115,7 +115,7 @@ class PointLight(Light):
 
     def get_diffuse_color(self, intercept: Intercept) -> tuple[float, float, float]:
         direction = pm.subtract(self.point, intercept.point)
-        R = pm.norm_magnitude(direction)
+        R = pm.norm_mag(direction)
         direction = tuple([i/R for i in direction])
 
         intensity = pm.dot(intercept.normal, direction) * self.intensity
@@ -132,14 +132,14 @@ class PointLight(Light):
 
     def get_specular_color(self, intercept: Intercept, view_position: tuple[float, float, float]) -> tuple[float, float, float]:
         direction = pm.subtract(self.point, intercept.point)
-        R = pm.norm_magnitude(direction)
+        R = pm.norm_mag(direction)
         direction = tuple([i/R for i in direction])
 
         reflect_vector = calculate_reflect_vector(direction, intercept.normal)
 
         view_direction = pm.subtract(view_position, intercept.point)
         view_direction = tuple(
-            [i/pm.norm_magnitude(view_direction) for i in view_direction])
+            [i/pm.norm_mag(view_direction) for i in view_direction])
 
         specular_intensity = max(
             0, pm.dot(view_direction, reflect_vector)) ** intercept.obj.material.specular

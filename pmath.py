@@ -22,7 +22,7 @@ def norm(v: tuple[float, float, float]) -> tuple[float, float, float]:
     return tuple(x / magnitude for x in v)
 
 
-def norm_magnitude(v: tuple[float, float, float]) -> tuple[float, float, float]:
+def norm_mag(v: tuple[float, float, float]) -> tuple[float, float, float]:
     '''
     Norm a vector and return the magnitude
     '''
