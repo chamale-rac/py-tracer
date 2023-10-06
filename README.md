@@ -1,4 +1,4 @@
-# 🐍 py-tracer 🖼️ AKA RT1: Spheres, Materials & Phong Shading
+# 🐍 py-tracer 🖼️ RT2: Opaque, Reflective & Refractive Materials
 
 Ray tracer using python and PyGame as main library.
 
@@ -7,15 +7,21 @@ Ray tracer using python and PyGame as main library.
 Simply run the next commands:
 
 ``` bash
-python app.py
+python raytracer.py
 ```
 
 That's all! 🎉 Wait unit it finish the render.
 
-> - ℹ️ You can modify the scene using the [./default.txt](./default.txt) or by creating a new scene file and defining it on the program.
-> - 🧠 Using CTRL+R you can update the scene base on the scene file.
+### ✅ Tips
+
+- ℹ️ You can modify the scene using the [./assets/scenes/222.txt](./assets/scenes/222.txt) or by creating a new scene file and defining it on the program.
+- 🧠 With **CTRL+R** you can update the scene based on the scene file.
+- 🧠 With **CTRL+S** you can take screenshots.
 
 ## 🎭 Show off
 
-![image](https://github.com/chamale-rac/py-tracer/assets/63200593/efaa16d6-b921-4ada-ad2a-79c0b9cabdaa)
+![image](./assets/screenshots/showoff.png)
 
+## 🫠 Who I'm?
+
+Samuel A. Chamalé - 21881
