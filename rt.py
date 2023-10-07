@@ -108,9 +108,9 @@ class Raytracer(object):
 
         if material.texture and intercept.texture_coords:
             texture_x = intercept.texture_coords[0] * \
-                material.texture.get_width()
+                material.texture.get_width() - 1
             texture_y = intercept.texture_coords[1] * \
-                material.texture.get_height()
+                material.texture.get_height() - 1
 
             texture_color = material.texture.get_at(
                 (int(texture_x), int(texture_y)))

@@ -23,8 +23,10 @@ def app():
     # width = 640
     # width = 1920
     # height = 1080
-    width = 256
-    height = 256
+    # width = 256
+    # height = 256
+    width = 480
+    height = 270
     pygame.init()
 
     pygame.display.set_caption(f"RT - {file_path}")
@@ -86,6 +88,12 @@ def app():
                     material_name = params[7]
                     raytracer.scene.append(Disk(
                         position=position, normal=normal, radius=radius, material=materials[material_name]))
+                elif keyword == "AABB":
+                    position = tuple(map(float, params[:3]))
+                    size = tuple(map(float, params[3:6]))
+                    material_name = params[6]
+                    raytracer.scene.append(AABB(
+                        position=position, size=size, material=materials[material_name]))
                 elif keyword == "texture":
                     if params[0] != 'None':
                         texture = pygame.image.load(params[1])
