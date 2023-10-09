@@ -1,4 +1,4 @@
-# 🐍 py-tracer 🖼️ RT2: Opaque, Reflective & Refractive Materials
+# 🐍 py-tracer 🖼️ RT3: Planes, Disks and Cubes
 
 Ray tracer using python and PyGame as main library.
 
@@ -14,7 +14,7 @@ That's all! 🎉 Wait unit it finish the render.
 
 ### ✅ Tips
 
-- ℹ️ You can modify the scene using the [./assets/scenes/222.txt](./assets/scenes/222.txt) or by creating a new scene file and defining it on the program.
+- ℹ️ You can modify the scene using the [./assets/scenes/444.txt](./assets/scenes/444.txt) or by creating a new scene file and defining it on the program.
 - 🧠 With **CTRL+R** you can update the scene based on the scene file.
 - 🧠 With **CTRL+S** you can take screenshots.
 

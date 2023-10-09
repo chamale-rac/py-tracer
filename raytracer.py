@@ -1,32 +1,22 @@
 import os
 import pygame
+import time
 from rt import Raytracer
 from figures import *
 from lights import *
 from materials import *
+import matplotlib.colors
 
 
 def app():
     # Constants
-    file_path = './assets/scenes/222.txt'
+    file_path = './assets/scenes/444.txt'
     environment_map_path = './assets/textures/environment/brown_photostudio_05_8k.png'
     screen_shot_path = './assets/screenshots/'
-    # width = 1080
-    # height = 720
-    # width = 256
-    # height = 256
-    # width = 128
-    # height = 128
-    # height = 720
-    # width = 1280
-    # height = 360
-    # width = 640
-    # width = 1920
-    # height = 1080
-    # width = 256
-    # height = 256
-    width = 480
-    height = 270
+
+    width = 1920
+    height = 1080
+
     pygame.init()
 
     pygame.display.set_caption(f"RT - {file_path}")
@@ -100,12 +90,12 @@ def app():
                         textures[params[0]] = texture
                 elif keyword == "material":
                     name = params[0]
-                    diffuse = tuple(map(float, params[1:4]))
-                    specular = float(params[4])
-                    ks = float(params[5])
-                    material_type = material_types[params[6]]
-                    texture = textures[params[7]]
-                    ior = float(params[8])
+                    diffuse = tuple(matplotlib.colors.to_rgb(f'#{params[1]}'))
+                    specular = float(params[2])
+                    ks = float(params[3])
+                    material_type = material_types[params[4]]
+                    texture = textures[params[5]]
+                    ior = float(params[6])
                     materials[name] = Material(
                         diffuse=diffuse, specular=specular, ks=ks, material_type=material_type, texture=texture, ior=ior)
                 elif keyword == "clear_color":
@@ -135,11 +125,14 @@ def app():
                 once = True
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_s and pygame.key.get_mods() & pygame.KMOD_CTRL:
                 pygame.display.set_caption("Saving...")
+                # use time to make sure the file name is unique
+                screen_shot_file_name = f'screenshot{ss}_{int(time.time())}.png'
+
                 pygame.image.save(screen, os.path.join(
-                    os.path.dirname(screen_shot_path), f'screenshot{ss}.png'))
+                    os.path.dirname(screen_shot_path), screen_shot_file_name))
                 ss += 1
                 print(
-                    f"Saved screenshot: {screen_shot_path}screenshot{ss}.png")
+                    f"Saved screenshot: {screen_shot_path}{screen_shot_file_name}")
                 pygame.display.set_caption(f"RT - {file_path}")
 
         if once:

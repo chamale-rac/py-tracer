@@ -5,7 +5,7 @@
 
 # rendering configurations
 ## format: config_name value
-batch_size 30
+batch_size 120
 render_using threads
 
 
@@ -42,21 +42,15 @@ material dummy 0.803 0.835 0.494 32 0.1 OPAQUE None 1.0
 
 # spheres
 ## format: sphere x y z radius material_name
-## format: plane x y z n1 n2 n3 material_name
-## format: disk x y z n1 n2 n3 radius material_name
-## format: AABB x y z dx dy dz material_name
 ### right spheres
-#sphere 3 1.5 -7 1 woodfloor
-#sphere 3 -1.5 -5 1 chip04yellow
+sphere 3 1.5 -7 1 woodfloor
+sphere 3 -1.5 -5 1 chip04yellow
 
 ### center spheres
 sphere 0 1.5 -7 1 gold
-# plane 0 -5 0 0 1 0 dummy
-# disk 0 -1 -7 0 1 0 2 glass
-AABB 1.5 1.5 -5 1 1 1 gold
-#sphere 0 -1.5 -7 1 plate
+sphere 0 -1.5 -7 1 plate
 
 ### left spheres
-#sphere -3 1.5 -7 1 glass
-#sphere -3 -1.5 -7 1 diamond
-#sphere -3 1.5 -10 1 dummy
+sphere -3 1.5 -7 1 glass
+sphere -3 -1.5 -7 1 diamond
+sphere -3 1.5 -10 1 dummy
