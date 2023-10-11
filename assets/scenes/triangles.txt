@@ -44,4 +44,5 @@ sphere 0 1 -10 1 dummy
 triangle 0 1 -5 1 -1 -5 -1 -1 -5 glass
 triangle -1 0.5 -4.5 0.5 -2 -4.5 -1 -1 -4.5 diamond
 triangle 5 0 -10 6 5 -5 6 -5 -5 gold
+triangle -3 0 -7 -6 -4 -5 -6 -5 -5 dummy
 AABB 5 -2 -8 2 1 2 plate 
