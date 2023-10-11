@@ -220,6 +220,69 @@ class AABB(Shape):
                          texture_coords=(u, v))
 
 
+class Triangle(Shape):
+    '''
+    Triangle class
+
+    This class represents a triangle.
+
+    Attributes:
+        vertices (tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float, float]]): The vertices of the triangle.
+    '''
+
+    def __init__(self, vertices: tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float, float]], material: Material) -> None:
+        super().__init__(self.calculate_triangle_center(vertices), material)
+        self.vertices = vertices
+
+    @staticmethod
+    def calculate_triangle_center(vertices: tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float, float]]) -> tuple[float, float, float]:
+        x = (vertices[0][0] + vertices[1][0] + vertices[2][0]) / 3
+        y = (vertices[0][1] + vertices[1][1] + vertices[2][1]) / 3
+        z = (vertices[0][2] + vertices[1][2] + vertices[2][2]) / 3
+        return x, y, z
+
+    def ray_intersect(self, origin: tuple[float, float, float], direction: tuple[float, float, float]) -> bool:
+        '''
+        Ray intersect method, returns the intercept of the ray with the triangle.
+
+        Implementation of Möller–Trumbore intersection algorithm.
+        '''
+        epsilon = 0.0001
+
+        vertex0, vertex1, vertex2 = self.vertices
+        edge1 = pm.subtract(vertex1, vertex0)
+        edge2 = pm.subtract(vertex2, vertex0)
+        h = pm.cross(direction, edge2)
+        a = pm.dot(edge1, h)
+
+        if a > -epsilon and a < epsilon:
+            return None
+
+        f = 1.0 / a
+        s = pm.subtract(origin, vertex0)
+        u = f * pm.dot(s, h)
+
+        if u < 0.0 or u > 1.0:
+            return None
+
+        q = pm.cross(s, edge1)
+        v = f * pm.dot(direction, q)
+
+        if v < 0.0 or u + v > 1.0:
+            return None
+
+        t = f * pm.dot(edge2, q)
+
+        if t > epsilon:
+            point = pm.add(origin, pm.multiply(t, direction))
+            normal = pm.norm(pm.cross(edge1, edge2))
+            u = 1 - u
+            v = 1 - v
+            return Intercept(distance=t, point=point, normal=normal, obj=self, texture_coords=(u, v))
+
+        return None
+
+
 class Intercept(object):
     '''
     Intercept class

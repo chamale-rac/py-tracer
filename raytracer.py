@@ -4,6 +4,7 @@ from rt import Raytracer
 from figures import *
 from lights import *
 from materials import *
+import matplotlib
 
 
 def app():
@@ -11,22 +12,12 @@ def app():
     file_path = './assets/scenes/222.txt'
     environment_map_path = './assets/textures/environment/brown_photostudio_05_8k.png'
     screen_shot_path = './assets/screenshots/'
-    # width = 1080
-    # height = 720
-    # width = 256
-    # height = 256
-    # width = 128
-    # height = 128
-    # height = 720
-    # width = 1280
-    # height = 360
-    # width = 640
-    # width = 1920
-    # height = 1080
-    # width = 256
-    # height = 256
-    width = 480
-    height = 270
+
+    # width = 250
+    # height = 140
+    width = 960
+    height = 540
+
     pygame.init()
 
     pygame.display.set_caption(f"RT - {file_path}")
@@ -44,6 +35,7 @@ def app():
     }
 
     def parseScene(filepath: str = "./default.txt"):
+        use_hex = False
         with open(filepath, "r") as f:
             for line in f:
                 # Parse the line
@@ -94,18 +86,32 @@ def app():
                     material_name = params[6]
                     raytracer.scene.append(AABB(
                         position=position, size=size, material=materials[material_name]))
+                elif keyword == "triangle":
+                    a = tuple(map(float, params[:3]))
+                    b = tuple(map(float, params[3:6]))
+                    c = tuple(map(float, params[6:9]))
+                    vertices = [a, b, c]
+                    material_name = params[9]
+                    raytracer.scene.append(
+                        Triangle(vertices=vertices, material=materials[material_name]))
                 elif keyword == "texture":
                     if params[0] != 'None':
                         texture = pygame.image.load(params[1])
                         textures[params[0]] = texture
                 elif keyword == "material":
                     name = params[0]
-                    diffuse = tuple(map(float, params[1:4]))
-                    specular = float(params[4])
-                    ks = float(params[5])
-                    material_type = material_types[params[6]]
-                    texture = textures[params[7]]
-                    ior = float(params[8])
+                    offset = 0
+                    if use_hex:
+                        diffuse = tuple(
+                            matplotlib.colors.to_rgb(f'#{params[1]}'))
+                    else:
+                        diffuse = tuple(map(float, params[1:4]))
+                        offset = 2
+                    specular = float(params[2 + offset])
+                    ks = float(params[3 + offset])
+                    material_type = material_types[params[4 + offset]]
+                    texture = textures[params[5 + offset]]
+                    ior = float(params[6 + offset])
                     materials[name] = Material(
                         diffuse=diffuse, specular=specular, ks=ks, material_type=material_type, texture=texture, ior=ior)
                 elif keyword == "clear_color":
@@ -115,6 +121,9 @@ def app():
                     raytracer.batch_size = int(params[0])
                 elif keyword == "render_using":
                     raytracer.render_using = params[0]
+                elif keyword == "use_hex":
+                    if params[0] == 'true':
+                        use_hex = True
 
     parseScene(file_path)
 

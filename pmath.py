@@ -50,6 +50,15 @@ def add(v1: tuple[float, float, float], v2: tuple[float, float, float]) -> tuple
     return tuple(x + y for x, y in zip(v1, v2))
 
 
+def cross(v1: tuple[float, float, float], v2: tuple[float, float, float]) -> tuple[float, float, float]:
+    '''
+    Cross product of two vectors
+    '''
+    return (v1[1] * v2[2] - v1[2] * v2[1],
+            v1[2] * v2[0] - v1[0] * v2[2],
+            v1[0] * v2[1] - v1[1] * v2[0])
+
+
 def reflect_vector(vector: tuple[float, float, float], normal: tuple[float, float, float]) -> tuple[float, float, float]:
     '''
     Calculate the reflected vector.
@@ -151,3 +160,44 @@ def fresnel(vector: tuple[float, float, float], normal: tuple[float, float, floa
     Kt = 1 - Kr
 
     return (Kr, Kt)
+
+
+def transpose(matrix: list[list[float]]) -> list[list[float]]:
+    '''
+    Transpose a matrix.
+    '''
+    return [list(row) for row in zip(*matrix)]
+
+
+def multiply_vm(vector: tuple[float, float, float], matrix: list[list[float]]) -> tuple[float, float, float]:
+    '''
+    Multiply a vector by a matrix.
+    '''
+    return tuple(sum(matrix[i][j] * vector[j] for j in range(3)) for i in range(3))
+
+
+def rotation_matrix(rotation: tuple[float, float, float]) -> list[list[float]]:
+    '''
+    Create a rotation matrix from rotation tuple
+    '''
+    x, y, z = rotation
+    cx = math.cos(x)
+    sx = math.sin(x)
+    cy = math.cos(y)
+    sy = math.sin(y)
+    cz = math.cos(z)
+    sz = math.sin(z)
+
+    return [
+        [cy*cz, -cy*sz, sy, 0],
+        [sx*sy*cz + cx*sz, -sx*sy*sz + cx*cz, -sx*cy, 0],
+        [-cx*sy*cz + sx*sz, cx*sy*sz + sx*cz, cx*cy, 0],
+        [0, 0, 0, 1]
+    ]
+
+
+def rotate(vector: tuple[float, float, float], rotation_matrix: list[list[float]]) -> tuple[float, float, float]:
+    '''
+    Rotate a vector by a rotation tuple
+    '''
+    return tuple(sum(rotation_matrix[i][j] * vector[j] for j in range(3)) for i in range(3))
