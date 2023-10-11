@@ -1,6 +1,8 @@
-# 🐍 py-tracer 🖼️ RT2: Opaque, Reflective & Refractive Materials
+# 🐍 py-tracer 🖼️ Lab 3: Ray-Intersect Algorithm, New Shapes
 
 Ray tracer using python and PyGame as main library.
+
+    ⚠️ TRIANGLES were implemented as part of the lab! 
 
 ## 🚀 How to execute it?
 
@@ -14,7 +16,7 @@ That's all! 🎉 Wait unit it finish the render.
 
 ### ✅ Tips
 
-- ℹ️ You can modify the scene using the [./assets/scenes/222.txt](./assets/scenes/222.txt) or by creating a new scene file and defining it on the program.
+- ℹ️ You can modify the scene using the [./assets/scenes/triangles.txt](./assets/scenes/triangles.txt) or by creating a new scene file and defining it on the program.
 - 🧠 With **CTRL+R** you can update the scene based on the scene file.
 - 🧠 With **CTRL+S** you can take screenshots.
 

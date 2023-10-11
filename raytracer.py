@@ -5,18 +5,17 @@ from figures import *
 from lights import *
 from materials import *
 import matplotlib
+import datetime
 
 
 def app():
     # Constants
-    file_path = './assets/scenes/222.txt'
+    file_path = './assets/scenes/triangles.txt'
     environment_map_path = './assets/textures/environment/brown_photostudio_05_8k.png'
     screen_shot_path = './assets/screenshots/'
 
-    # width = 250
-    # height = 140
-    width = 960
-    height = 540
+    width = 1920
+    height = 1080
 
     pygame.init()
 
@@ -144,11 +143,14 @@ def app():
                 once = True
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_s and pygame.key.get_mods() & pygame.KMOD_CTRL:
                 pygame.display.set_caption("Saving...")
+                # Screenshot name unique using timestamp
+                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                screen_shot_name = f'screenshot{ss}_{timestamp}.png'
                 pygame.image.save(screen, os.path.join(
-                    os.path.dirname(screen_shot_path), f'screenshot{ss}.png'))
+                    os.path.dirname(screen_shot_path), screen_shot_name))
                 ss += 1
                 print(
-                    f"Saved screenshot: {screen_shot_path}screenshot{ss}.png")
+                    f"Saved screenshot: {screen_shot_path}{screen_shot_name}")
                 pygame.display.set_caption(f"RT - {file_path}")
 
         if once:
