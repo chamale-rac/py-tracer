@@ -12,13 +12,13 @@ Simply run the next commands:
 python raytracer.py
 ```
 
-That's all! 🎉 Wait unit it finish the render.
+That's all! 🎉 Wait until the render finish.
 
 ### ✅ Tips
 
 - ℹ️ You can modify the scene using the [./assets/scenes/triangles.txt](./assets/scenes/triangles.txt) or by creating a new scene file and defining it on the program.
-- 🧠 With **CTRL+R** you can update the scene based on the scene file.
-- 🧠 With **CTRL+S** you can take screenshots.
+- 🧠 Using **CTRL+R** you can update the scene based on the scene file.
+- 🧠 USing **CTRL+S** you can take screenshots.
 
 ## 🎭 Show off
 
