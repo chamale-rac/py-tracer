@@ -15,6 +15,7 @@ use_hex false
 texture plate ./assets/textures/objects/plate.png
 texture gold ./assets/textures/objects/gold.png
 
+
 # lights
 ## format: light_type x y z intensity (r g b)
 ambient 0.3

@@ -6,22 +6,25 @@ from lights import *
 from materials import *
 import matplotlib
 import datetime
+import math
+
+# Start-Process -FilePath "wmic" -ArgumentList "process where name='python.exe' CALL setpriority 128" -Wait
+# Start-Process -FilePath "python" -ArgumentList "raytracer.py"
 
 
 def app():
     # Constants
-    file_path = './assets/scenes/triangles.txt'
+    file_path = './assets/scenes/models.txt'
     environment_map_path = './assets/textures/environment/brown_photostudio_05_8k.png'
     screen_shot_path = './assets/screenshots/'
 
-    width = 1920
-    height = 1080
+    width = 1080
+    height = 720
 
     pygame.init()
 
     pygame.display.set_caption(f"RT - {file_path}")
 
-    # pygame.FULLSCREEN
     screen = pygame.display.set_mode(
         (width, height), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE)
     screen.set_alpha(None)
@@ -93,6 +96,14 @@ def app():
                     material_name = params[9]
                     raytracer.scene.append(
                         Triangle(vertices=vertices, material=materials[material_name]))
+                elif keyword == "object":
+                    position = tuple(map(float, params[:3]))
+                    scale = tuple(map(float, params[3:6]))
+                    rotate = tuple(map(float, params[6:9]))
+                    object_path = params[9]
+                    material_name = params[10]
+                    raytracer.scene.append(Obj(
+                        position=position, scale=scale, rotate=rotate, material=materials[material_name], filepath=object_path))
                 elif keyword == "texture":
                     if params[0] != 'None':
                         texture = pygame.image.load(params[1])
@@ -116,10 +127,11 @@ def app():
                 elif keyword == "clear_color":
                     color = tuple(map(float, params[:3]))
                     raytracer.set_clear_color(*color)
-                elif keyword == "batch_size":
-                    raytracer.batch_size = int(params[0])
                 elif keyword == "render_using":
                     raytracer.render_using = params[0]
+                    raytracer.batch_size = math.gcd(height, width)
+                elif keyword == "batch_size":
+                    raytracer.batch_size = int(params[0])
                 elif keyword == "use_hex":
                     if params[0] == 'true':
                         use_hex = True

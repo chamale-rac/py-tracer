@@ -245,7 +245,7 @@ class Triangle(Shape):
         '''
         Ray intersect method, returns the intercept of the ray with the triangle.
 
-        Implementation of Möller–Trumbore intersection algorithm.
+        Implementation of Möller-Trumbore intersection algorithm.
         '''
         epsilon = 0.0001
 
@@ -281,6 +281,139 @@ class Triangle(Shape):
             return Intercept(distance=t, point=point, normal=normal, obj=self, texture_coords=(u, v))
 
         return None
+
+
+class Obj(Shape):
+    '''
+    Obj class
+
+    This class represents an OBJ (.obj) model.
+
+    Attributes:
+        filepath (str): The path to the OBJ file.
+        translation (tuple[float, float, float]): The translation of the model.
+        rotation (tuple[float, float, float]): The rotation of the model.
+        scale (tuple[float, float, float]): The scale of the model.
+    '''
+
+    def __init__(self, position: tuple[float, float, float],
+                 filepath: str,
+                 material: Material,
+                 rotate: tuple[float, float, float] = (0, 0, 0),
+                 scale: tuple[float, float, float] = (1, 1, 1),
+                 ) -> None:
+        super().__init__(position, material)
+        translate = position
+        self.model_matrix = pm.model_matrix(translate, rotate, scale)
+        self.vertices, self.faces = self.load(filepath)
+        self.triangles = []
+
+        # Create triangles applying transformations
+        for face in self.faces:
+            vertex_count = len(face)
+
+            v0 = self.vertex_shader(
+                self.vertices[face[0] - 1], self.model_matrix)
+            v1 = self.vertex_shader(
+                self.vertices[face[1] - 1], self.model_matrix)
+            v2 = self.vertex_shader(
+                self.vertices[face[2] - 1], self.model_matrix)
+
+            if vertex_count == 3:
+                self.triangles.append(Triangle((v0, v1, v2), self.material))
+
+            elif vertex_count == 4:
+                v3 = self.vertex_shader(
+                    self.vertices[face[3] - 1], self.model_matrix)
+                self.triangles.append(Triangle((v0, v1, v2), self.material))
+                self.triangles.append(Triangle((v0, v2, v3), self.material))
+
+    @staticmethod
+    def vertex_shader(vertex: tuple[float, float, float], model_matrix: list[list[float]]):
+        '''
+        Vertex shader
+        '''
+        # Convert vertex to homogeneous coordinates
+        vertex = list(vertex) + [1]
+
+        # Apply model matrix
+        vertex = pm.multiply_mv(model_matrix, vertex)
+        vertex = (vertex[0] / vertex[3], vertex[1] /
+                  vertex[3], vertex[2] / vertex[3])
+
+        return vertex
+
+    @staticmethod
+    def load(path: str) -> object:
+        '''
+        Load object from path
+
+        This function is used to load object from path. Read an OBJ file and return the vertex and face data.
+
+        Attributes:
+            path (str): The path to the OBJ file.
+        '''
+        import re
+
+        print('Loading 3D model from: ' + path)
+
+        # Initialize lists
+        vertices = []
+        faces = []
+
+        # Open file
+        with open(file=path, mode='r') as file:
+            lines = file.read().splitlines()
+
+        # Read file
+        for line in lines:
+            # Split line
+            try:
+                prefix, data = re.split(r'\s+', line, 1)
+                prefix, data = prefix.strip(), data.strip()
+            except:
+                continue
+
+            # Read vertex
+            if prefix == 'v':
+                vertex = tuple(map(float, data.split(' ')))
+                vertices.append(vertex)
+            # Read face
+            elif prefix == 'f':
+                face = tuple(int(vertex.split('/')[0])
+                             for vertex in data.split(' '))
+                faces.append(face)
+
+        # Return data
+        return vertices, faces
+
+    def ray_intersect(self, origin: tuple[float, float, float], direction: tuple[float, float, float]) -> bool:
+        '''
+        Ray intersect method, returns the intercept of the ray with the triangle.
+
+        Implementation of Möller-Trumbore intersection algorithm.
+        '''
+        intersect: Intercept = None
+        t = float('inf')
+        u, v = 0, 0
+
+        for triangle in self.triangles:
+            triangle_intersect = triangle.ray_intersect(origin, direction)
+
+            if triangle_intersect is not None:
+                if triangle_intersect.distance < t:
+                    t = triangle_intersect.distance
+                    intersect = triangle_intersect
+                    u, v = triangle_intersect.texture_coords
+
+        if intersect is None:
+            return None
+
+        return Intercept(distance=intersect.distance,
+                         point=intersect.point,
+                         normal=intersect.normal,
+                         obj=self,
+                         texture_coords=(u, v))
 
 
 class Intercept(object):

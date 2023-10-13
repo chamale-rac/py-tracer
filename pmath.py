@@ -169,31 +169,126 @@ def transpose(matrix: list[list[float]]) -> list[list[float]]:
     return [list(row) for row in zip(*matrix)]
 
 
-def multiply_vm(vector: tuple[float, float, float], matrix: list[list[float]]) -> tuple[float, float, float]:
+def multiply_mv(matrix: list[list[float]], vector: tuple[float]) -> tuple[float]:
     '''
-    Multiply a vector by a matrix.
+    Multiply a matrix by a vector
     '''
-    return tuple(sum(matrix[i][j] * vector[j] for j in range(3)) for i in range(3))
+    # Check matrix column length and vector length match
+    assert len(matrix[0]) == len(vector)
+    _len = len(vector)
+
+    result = [sum(matrix[i][j] * vector[j] for j in range(_len))
+              for i in range(_len)]
+
+    return tuple(result)
 
 
 def rotation_matrix(rotation: tuple[float, float, float]) -> list[list[float]]:
     '''
     Create a rotation matrix from rotation tuple
+
+    Using the rotation tuple (x, y, z), create a rotation matrix. Based on the theory from https://en.wikipedia.org/wiki/Rotation_matrix#In_three_dimensions
     '''
+
+    # represents an extrinsic rotation whose (improper) Euler angles are α, β, γ, about axes x, y, z.
     x, y, z = rotation
+
     cx = math.cos(x)
     sx = math.sin(x)
+
     cy = math.cos(y)
     sy = math.sin(y)
+
     cz = math.cos(z)
     sz = math.sin(z)
 
+    matrix = [
+        [cy*cz, sx*sy*cz - cx*sz, cx*sy*cz + sx*sz],
+        [cy*sz, sx*sy*sz + cx*cz, cx*sy*sz - sx*cz],
+        [-sy, sx*cy, cx*cy]
+    ]
+
+    # Return a 4x4 matrix
+    return [row + [0] for row in matrix] + [[0, 0, 0, 1]]
+
+
+def translation_matrix(translation: tuple[float, float, float]) -> list[list[float]]:
+    '''
+    Create a translation matrix from translation tuple
+
+    Using the translation tuple (x, y, z), create a translation matrix. Based on the theory from https://en.wikipedia.org/wiki/Translation_matrix
+
+    '''
+    x, y, z = translation
+
     return [
-        [cy*cz, -cy*sz, sy, 0],
-        [sx*sy*cz + cx*sz, -sx*sy*sz + cx*cz, -sx*cy, 0],
-        [-cx*sy*cz + sx*sz, cx*sy*sz + sx*cz, cx*cy, 0],
+        [1, 0, 0, x],
+        [0, 1, 0, y],
+        [0, 0, 1, z],
         [0, 0, 0, 1]
     ]
+
+
+def scale_matrix(scale: tuple[float, float, float]) -> list[list[float]]:
+    '''
+    Create a scale matrix from scale tuple
+
+    Using the scale tuple (x, y, z), create a scale matrix. Based on the theory from https://en.wikipedia.org/wiki/Scaling_(geometry)
+
+    '''
+    x, y, z = scale
+
+    return [
+        [x, 0, 0, 0],
+        [0, y, 0, 0],
+        [0, 0, z, 0],
+        [0, 0, 0, 1]
+    ]
+
+
+def multiply_mm(matrix1: list[list[float]], matrix2: list[list[float]]) -> list[list[float]]:
+    '''
+    Multiply two matrices
+    '''
+    return [[sum(a * b for a, b in zip(x_row, y_col)) for y_col in zip(*matrix2)] for x_row in matrix1]
+
+
+def multiply_matrices(*matrices: list[list[float]]) -> list[list[float]]:
+    '''
+    Multiply multiple matrices
+    '''
+    result = matrices[0]
+    for matrix in matrices[1:]:
+        result = multiply_mm(result, matrix)
+    return result
+
+
+def model_matrix(translate: tuple[float, float, float],
+                 rotate: tuple[float, float, float],
+                 scale: tuple[float, float, float]) -> tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float, float]]:
+    '''
+    Model matrix
+
+    This function is used to create a model matrix.
+
+    Attributes:
+        translate (tuple[float, float, float]): The translation of the model.
+        rotate (tuple[float, float, float]): The rotation of the model.
+        scale (tuple[float, float, float]): The scale of the model.
+    '''
+    # Translation matrix
+    T = translation_matrix(translate)
+
+    # Rotation matrix
+    R = rotation_matrix(rotate)
+
+    # Scale matrix
+    S = scale_matrix(scale)
+
+    # Model matrix := T * R * S
+    model_matrix = multiply_matrices(T, R, S)
+
+    return model_matrix
 
 
 def rotate(vector: tuple[float, float, float], rotation_matrix: list[list[float]]) -> tuple[float, float, float]:
