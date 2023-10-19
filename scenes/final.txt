@@ -1,0 +1,72 @@
+### Scene description:
+### Proyecto 2: Ray Tracing 
+### ...
+
+# rendering configurations
+## format: config_name value
+render_using threads
+batch_size 180
+use_hex true
+
+# textures
+## format texture texture_name texture_file_name
+
+texture plate ./assets/textures/objects/plate.png
+texture gold ./assets/textures/objects/gold.png
+texture colorfull ./assets/textures/objects/colorfull.jpg
+
+# lights
+## format: light_type x y z intensity (r g b)
+
+ambient 0.6
+directional -1 -1 -1 0.7
+
+point -9 -4 -25 90 0.996 0.1 0.1
+point 12 -4 -32 90 0.1 0.996 0.1
+point -12 -4 -20 90 1 0.4 0
+
+# materials
+## format: material name r g b specular ks material_type ior
+
+material green 559b43 32 0.1 OPAQUE None 1.0
+material dark_pink ff699e 32 0.1 OPAQUE None 1.0
+material sky_pink ffafa3 32 0.1 OPAQUE None 1.0
+material sky_blue 6faee3 32 0.1 OPAQUE None 1.0
+material black 3b4042 32 0.1 OPAQUE None 1.0
+material white fbfbf9 32 0.1 OPAQUE None 1.0
+
+material gold f9f9f9 128 0.2 REFLECTIVE gold 1
+material plate f9f9f9 32 0.15 REFLECTIVE plate 1
+material colorfull_reflective e5e5e5 32 0.15 REFLECTIVE colorfull 1
+
+material glass e5e5e5 64 0.15 TRANSPARENT None 1.5
+material colorfull_transparent e5e5e5 64 0.15 TRANSPARENT colorfull 1.5
+material diamond 9a1ee7 64 0.2 TRANSPARENT None 2.417
+
+
+# objects
+## format: sphere x y z radius material_name
+## format: plane x y z n1 n2 n3 material_name
+## format: disk x y z n1 n2 n3 radius material_name
+## format: AABB x y z dx dy dz material_name
+## format: triangle a1 a2 a3 b1 b2 b3 c1 c2 c3 material_name
+## format: object px py pz sx sy sz rx ry rz object_path material_name
+
+plane 0 -5 -20 0 1 0 sky_blue
+plane 0 -5 -40 0 0 1 sky_blue
+
+object 0 -5 -25 2.3 2.3 2.3 0 0.35 0 ./assets/models/sofa_base.obj dark_pink
+object 0 -5 -25 2.3 2.3 2.3 0 0.35 0 ./assets/models/sofa_cushion.obj sky_pink
+object 0 -5 -25 2.3 2.3 2.3 0 0.35 0 ./assets/models/sofa_back_sticks.obj sky_pink
+object 0 -5 -25 2.3 2.3 2.3 0 0.35 0 ./assets/models/sofa_front_sticks.obj sky_pink
+
+object 0 -5 -25 2.3 2.3 2.3 0 0.35 0 ./assets/models/flowerpot.obj dark_pink
+object 0 -5 -25 2.3 2.3 2.3 0 0.35 0 ./assets/models/leafs.obj green
+object 0 -5 -25 2.3 2.3 2.3 0 0.35 0 ./assets/models/soil.obj black
+
+object 0 -5 -25 2.3 2.3 2.3 0 0.35 0 ./assets/models/lamp_cover.obj white
+object 0 -5 -25 2.3 2.3 2.3 0 0.35 0 ./assets/models/lamp_base.obj black
+point 7.5 -2 -20 20 0.443 0.694 0.89
+
+sphere 8 -3.5 -15 1.5 gold
+AABB 6 -4 -12 2 2 2 glass

@@ -5,8 +5,8 @@
 
 # rendering configurations
 ## format: config_name value
-batch_size 120
 render_using threads
+batch_size 180
 use_hex false
 
 

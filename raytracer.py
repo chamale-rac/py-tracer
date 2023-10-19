@@ -14,9 +14,11 @@ import math
 
 def app():
     # Constants
-    file_path = './assets/scenes/models.txt'
+    file_name = 'triangles.txt'
+    file_path = f'./scenes/{file_name}'
+
     environment_map_path = './assets/textures/environment/brown_photostudio_05_8k.png'
-    screen_shot_path = './assets/screenshots/'
+    screen_shot_path = './screenshots/'
 
     width = 1080
     height = 720
